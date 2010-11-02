@@ -54,6 +54,7 @@ public class Stargate extends SuperPlugin {
 		public boolean onComplexBlockChange(Player player, ComplexBlock signBlock) {
 			if (!(signBlock instanceof Sign)) return false;
 			SignPost sign = new SignPost((Sign)signBlock);
+			@SuppressWarnings("unused")
 			Portal portal = Portal.createPortal(sign);
 
 			

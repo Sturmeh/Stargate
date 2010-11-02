@@ -8,7 +8,7 @@ public class Portal {
 	public static final int FIRE = 51;
 	public static final int AIR = 0;
 	public static final int PORTAL = 90;
-	
+
 	public Location base;
 	private Location coBase;
 	private Location exBase;
@@ -67,46 +67,66 @@ public class Portal {
 	private boolean compareLoc(Location a, Location b) {
 		return (a.x == b.x && a.y == b.y && a.z == b.z);
 	}
-	
+
 	public static Portal createPortal(SignPost id) {
 		Block idParent = id.getParent();
-		PortalFacing facing = PortalFacing.SOUTH;
-		int entranceX = 0;
-		int entranceZ = 0;
-		int entranceY = idParent.getY() - 1;
-		
-		if (idParent.getType() != OBSIDIAN) return null;
-		
+
+		if (idParent.getType() != OBSIDIAN) 
+			return null;
+
+		//PortalFacing facing = null;
+		Blox parent = new Blox(idParent.getX(), idParent.getY(), idParent.getZ());
+
+		int modX = 0;
+		int modZ = 0;
+
 		if (idParent.getX() > id.getBlock().getX()) {
-			facing = PortalFacing.NORTH;
-			
-			entranceX = idParent.getX();
-			entranceZ = idParent.getZ() - 1;
+			//facing = PortalFacing.NORTH;
+			modZ -= 1;
 		} else if (idParent.getX() < id.getBlock().getX()) {
-			facing = PortalFacing.SOUTH;
+			//facing = PortalFacing.SOUTH;
+			modZ += 1;
 		} else if (idParent.getZ() > id.getBlock().getZ()) {
-			facing = PortalFacing.EAST;
+			//facing = PortalFacing.EAST;
+			modX += 1;
 		} else if (idParent.getZ() < id.getBlock().getZ()) {
-			facing = PortalFacing.WEST;
+			//facing = PortalFacing.WEST;
+			modX -= 1;
 		}
 
-		if (etc.getServer().getBlockIdAt(entranceX, entranceY, entranceZ) == AIR) {
-			etc.getServer().setBlockAt(FIRE, entranceX, entranceY, entranceZ);
-			Stargate.broadcast("Entrance is air, started a fire at " + entranceX + "," + entranceY + "," + entranceZ);
-			
-			if (etc.getServer().getBlockIdAt(entranceX, entranceY, entranceZ) == PORTAL) {
-				etc.getServer().setBlockAt(AIR, entranceX, entranceY, entranceZ);
-				Stargate.broadcast("Omg a portal!");
+		//Blox entry = new Blox(entX+modX, entY, entZ+modZ);
+		Blox entry = parent.makeRelative(modX, 0, modZ);
+
+		if (entry.getType() == AIR && entry.makeRelative(0, -1, 0).getType() == OBSIDIAN) {
+			entry.setType(FIRE);
+			Stargate.broadcast("Burninating " + entry);
+
+			if (entry.getType() == PORTAL) {
+				entry.setType(AIR);
+				Stargate.broadcast("I'm making a note here, huge success!");
 			} else {
-				Stargate.log("No portal :(");
+				Stargate.broadcast("The cake is a lie!");
 			}
 		} else {
-			Stargate.log("Somethin's in the way");
+			entry = parent.makeRelative(-modX, 0, -modZ);
+			if (entry.getType() == AIR && entry.makeRelative(0, -1, 0).getType() == OBSIDIAN) {
+				entry.setType(FIRE);
+				Stargate.broadcast("Burninating " + entry);
+
+				if (entry.getType() == PORTAL) {
+					entry.setType(AIR);
+					Stargate.broadcast("This was a triumph!");
+				} else {
+					Stargate.broadcast("Fake portal!");
+				}
+			} else {
+				Stargate.broadcast("This ain't a portal...");
+			}
 		}
-		
+
 		return null;
 	}
-	
+
 	public enum PortalFacing {
 		NORTH,
 		EAST,
