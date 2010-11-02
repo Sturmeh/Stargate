@@ -68,7 +68,7 @@ public abstract class SuperPlugin extends Plugin {
 	 * Sends a message to all players!
 	 * @param String - Message to send to all players.
 	 */
-	public void broadcast(String message) {
+	public static void broadcast(String message) {
 		for (Player p : etc.getServer().getPlayerList()) {
 			p.sendMessage(message);
 		}

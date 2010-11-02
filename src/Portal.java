@@ -4,9 +4,11 @@
  * @author Dinnerbone
  */
 public class Portal {
-	public final int OBSIDIAN = 49;
-	public final int FIRE = 51;
-	public final int AIR = 0;
+	public static final int OBSIDIAN = 49;
+	public static final int FIRE = 51;
+	public static final int AIR = 0;
+	public static final int PORTAL = 90;
+	
 	public Location base;
 	private Location coBase;
 	private Location exBase;
@@ -64,5 +66,34 @@ public class Portal {
 
 	private boolean compareLoc(Location a, Location b) {
 		return (a.x == b.x && a.y == b.y && a.z == b.z);
+	}
+	
+	public static Portal createPortal(SignPost id) {
+		Block idParent = id.getParent();
+		PortalFacing facing = PortalFacing.SOUTH;
+		int entranceX, entranceZ;
+		int entranceY = idParent.getY() - 2;
+		
+		if (idParent.getType() != OBSIDIAN) return null;
+		
+		entranceX = idParent.getX();
+		entranceZ = idParent.getZ() - 1;
+		if (etc.getServer().getBlockIdAt(entranceX, entranceY, entranceZ) == AIR) {
+			etc.getServer().setBlockAt(FIRE, entranceX, entranceY, entranceZ);
+			
+			if (etc.getServer().getBlockIdAt(entranceX, entranceY, entranceZ) == PORTAL) {
+				etc.getServer().setBlockAt(AIR, entranceX, entranceY, entranceZ);
+				Stargate.broadcast("Omg a portal!");
+			}
+		}
+		
+		return null;
+	}
+	
+	public enum PortalFacing {
+		NORTH,
+		EAST,
+		SOUTH,
+		WEST
 	}
 }

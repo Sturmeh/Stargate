@@ -14,6 +14,7 @@ public class Stargate extends SuperPlugin {
 
 	public void initializeExtra() {
 		etc.getLoader().addListener(PluginLoader.Hook.PLAYER_MOVE, listener, this, PluginListener.Priority.MEDIUM);
+		etc.getLoader().addListener(PluginLoader.Hook.COMPLEX_BLOCK_CHANGE, listener, this, PluginListener.Priority.MEDIUM);
 	}
 
 	private Portal getExisting(Player explorer, Portal candidate) {
@@ -48,6 +49,15 @@ public class Stargate extends SuperPlugin {
 					dest.send(gate, player);
 				}
 			}
+		}
+		
+		public boolean onComplexBlockChange(Player player, ComplexBlock signBlock) {
+			if (!(signBlock instanceof Sign)) return false;
+			SignPost sign = new SignPost((Sign)signBlock);
+			Portal portal = Portal.createPortal(sign);
+
+			
+			return false;
 		}
 	}
 }
