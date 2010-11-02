@@ -71,20 +71,37 @@ public class Portal {
 	public static Portal createPortal(SignPost id) {
 		Block idParent = id.getParent();
 		PortalFacing facing = PortalFacing.SOUTH;
-		int entranceX, entranceZ;
-		int entranceY = idParent.getY() - 2;
+		int entranceX = 0;
+		int entranceZ = 0;
+		int entranceY = idParent.getY() - 1;
 		
 		if (idParent.getType() != OBSIDIAN) return null;
 		
-		entranceX = idParent.getX();
-		entranceZ = idParent.getZ() - 1;
+		if (idParent.getX() > id.getBlock().getX()) {
+			facing = PortalFacing.NORTH;
+			
+			entranceX = idParent.getX();
+			entranceZ = idParent.getZ() - 1;
+		} else if (idParent.getX() < id.getBlock().getX()) {
+			facing = PortalFacing.SOUTH;
+		} else if (idParent.getZ() > id.getBlock().getZ()) {
+			facing = PortalFacing.EAST;
+		} else if (idParent.getZ() < id.getBlock().getZ()) {
+			facing = PortalFacing.WEST;
+		}
+
 		if (etc.getServer().getBlockIdAt(entranceX, entranceY, entranceZ) == AIR) {
 			etc.getServer().setBlockAt(FIRE, entranceX, entranceY, entranceZ);
+			Stargate.broadcast("Entrance is air, started a fire at " + entranceX + "," + entranceY + "," + entranceZ);
 			
 			if (etc.getServer().getBlockIdAt(entranceX, entranceY, entranceZ) == PORTAL) {
 				etc.getServer().setBlockAt(AIR, entranceX, entranceY, entranceZ);
 				Stargate.broadcast("Omg a portal!");
+			} else {
+				Stargate.log("No portal :(");
 			}
+		} else {
+			Stargate.log("Somethin's in the way");
 		}
 		
 		return null;

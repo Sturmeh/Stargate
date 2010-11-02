@@ -6,7 +6,7 @@ import java.util.logging.Logger;
 public abstract class SuperPlugin extends Plugin {
 	public final ReloadListener reloader = new ReloadListener();
 	protected PropertiesFile config;
-	protected final Logger log = Logger.getLogger("Minecraft");
+	protected static final Logger log = Logger.getLogger("Minecraft");
 	protected String name;
 
 	/**
@@ -72,6 +72,14 @@ public abstract class SuperPlugin extends Plugin {
 		for (Player p : etc.getServer().getPlayerList()) {
 			p.sendMessage(message);
 		}
+	}
+
+	/**
+	 * Logs a message for debugging or for general information
+	 * @param String - Message to record
+	 */
+	public static void log(String message) {
+		log.info(message);
 	}
 	
 	/**
