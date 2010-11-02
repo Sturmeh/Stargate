@@ -1,5 +1,4 @@
 import java.util.logging.Logger;
-
 /**
  * SuperPlugin.java - Plug-in template for hey0's minecraft mod.
  * @author Shaun (sturmeh)
