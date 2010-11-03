@@ -1,4 +1,4 @@
-import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * Portal.java - Plug-in for hey0's minecraft mod.
@@ -10,15 +10,14 @@ public class Portal {
 	public static final int FIRE = 51;
 	public static final int AIR = 0;
 	public static final int PORTAL = 90;
-	private static final ArrayList<Portal> portalNames = new ArrayList<Portal>();
+	private static final HashMap<String, Portal> lookupNames = new HashMap<String, Portal>();
+	private static final HashMap<Blox, Portal> lookupEntrances = new HashMap<Blox, Portal>();
 
-	public Location base;
-	private Location coBase;
-	private Location exBase;
 	private Blox topLeft;
 	private int modX;
 	private int modZ;
 	private SignPost id;
+	private String name;
 	
 	private Portal () {
 	}
@@ -28,40 +27,52 @@ public class Portal {
 		this.modX = modX;
 		this.modZ = modZ;
 		this.id = id;
-	}
-
-	public boolean same(Portal twin) {
-		if (compareLoc(base, twin.base))
-			return true;
-		return compareLoc(coBase, twin.base);
-	}
-
-	public void send(Portal from, Player player) {
-		if (isOpen() && from.isOpen()) {
-			from.close();
-			player.teleportTo(new Location((base.x + coBase.x)/2, base.y, (base.z + coBase.z)/2, base.rotX, 0));
-			close();
-		}
+		
+		this.setName(id.getText(0));
 	}
 
 	public boolean isOpen() {
-		return (etc.getServer().getBlockIdAt((int)base.x, (int)base.y, (int)base.z) == 90);
+		Blox base = getBlockAt(1, -3, 0);
+		return base.getType() == PORTAL;
 	}
 
 	public void open() {
 		if (!isOpen())
-			etc.getServer().setBlockAt(FIRE, (int)base.x, (int)base.y, (int)base.z); // Fire
-	}
-
-	public void close() {
-		if (isOpen()) {
-			etc.getServer().setBlockAt(AIR, (int)exBase.x, (int)exBase.y, (int)exBase.z); // Air
-			etc.getServer().setBlockAt(OBSIDIAN, (int)exBase.x, (int)exBase.y, (int)exBase.z); // Obsidian
+		{
+			Blox base = getBlockAt(1, -3, 0);
+			base.setType(FIRE);
 		}
 	}
 
-	private boolean compareLoc(Location a, Location b) {
-		return (a.x == b.x && a.y == b.y && a.z == b.z);
+	public void close() {
+		Blox base = getBlockAt(1, -3, 0);
+		base.setType(AIR);
+	}
+	
+	public void setName(String name) {
+		this.name = name.toLowerCase().trim();
+		
+		id.setText(0, "--" + name + "--");
+		id.setText(1, "");
+		id.setText(2, "");
+		id.setText(3, "");
+	}
+	
+	public String getName() {
+		return this.name;
+	}
+	
+	public Blox[] getEntrances() {
+		Blox[] entrances = {
+			getBlockAt(1, -3, 0),
+			getBlockAt(2, -3, 0)
+		};
+		
+		return entrances;
+	}
+	
+	private Blox getBlockAt(int x, int y, int z) {
+		return topLeft.makeRelative(x * modX, y, z * modZ);
 	}
 
 	public static Portal createPortal(SignPost id) {
@@ -70,7 +81,6 @@ public class Portal {
 		if (idParent.getType() != OBSIDIAN) 
 			return null;
 
-		//PortalFacing facing = null;
 		Blox parent = new Blox(idParent.getX(), idParent.getY(), idParent.getZ());
 		Blox topleft = null;
 
@@ -78,16 +88,12 @@ public class Portal {
 		int modZ = 0;
 
 		if (idParent.getX() > id.getBlock().getX()) {
-			//facing = PortalFacing.NORTH;
 			modZ -= 1;
 		} else if (idParent.getX() < id.getBlock().getX()) {
-			//facing = PortalFacing.SOUTH;
 			modZ += 1;
 		} else if (idParent.getZ() > id.getBlock().getZ()) {
-			//facing = PortalFacing.EAST;
 			modX += 1;
 		} else if (idParent.getZ() < id.getBlock().getZ()) {
-			//facing = PortalFacing.WEST;
 			modX -= 1;
 		}
 
@@ -123,5 +129,20 @@ public class Portal {
 		Portal portal = new Portal(topleft, modX, modZ, id);
 
 		return portal;
+	}
+	
+	@Override
+	public int hashCode() {
+		return getName().hashCode();
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) return true;
+		if (obj == null) return false;
+		if (getClass() != obj.getClass()) return false;
+		
+		Portal portal = (Portal) obj;
+		return this.getName() == portal.getName(); 
 	}
 }

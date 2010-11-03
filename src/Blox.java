@@ -1,4 +1,3 @@
-
 public class Blox {
 	private int x;
 	private int y;
@@ -8,6 +7,12 @@ public class Blox {
 		this.x = x;
 		this.y = y;
 		this.z = z;
+	}
+	
+	public Blox (Block block) {
+		this.x = block.getX();
+		this.y = block.getY();
+		this.z = block.getZ();
 	}
 	
 	public Blox makeRelative(int x, int y, int z) {
@@ -24,5 +29,27 @@ public class Blox {
 	
 	public String toString() {
 		return x+", "+y+", "+z;
+	}
+	
+	@Override
+	public int hashCode() {
+		int result = 0;
+		
+		result += x * 92821;
+		result += y * 92821;
+		result += z * 92821;
+		
+		return result;
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) return true;
+		if (obj == null) return false;
+		if (getClass() != obj.getClass()) return false;
+		
+		Blox blox = (Blox) obj;
+		
+		return (x == blox.x) && (y == blox.y) && (z == blox.z); 
 	}
 }
