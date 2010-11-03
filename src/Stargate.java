@@ -42,13 +42,7 @@ public class Stargate extends SuperPlugin {
 
 	private class Listener extends PluginListener {
 		public void onPlayerMove(Player player, Location from, Location to) {	
-			if (etc.getServer().getBlockIdAt((int)to.x, (int)to.y, (int)to.z) == 90) {
-				Portal gate = getExisting(player, new Portal((int)to.x, (int)to.y, (int)to.z));
-				Portal dest = getRandom(gate);
-				if (dest != null) {
-					dest.send(gate, player);
-				}
-			}
+			
 		}
 		
 		public boolean onComplexBlockChange(Player player, ComplexBlock signBlock) {

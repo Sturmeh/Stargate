@@ -1,3 +1,5 @@
+import java.util.ArrayList;
+
 /**
  * Portal.java - Plug-in for hey0's minecraft mod.
  * @author Shaun (sturmeh)
@@ -8,30 +10,24 @@ public class Portal {
 	public static final int FIRE = 51;
 	public static final int AIR = 0;
 	public static final int PORTAL = 90;
+	private static final ArrayList<Portal> portalNames = new ArrayList<Portal>();
 
 	public Location base;
 	private Location coBase;
 	private Location exBase;
-
-	public Portal (int x, int y, int z) {
-		base = new Location(x, y, z);
-		if (etc.getServer().getBlockIdAt(x+1, y, z) == 90) {
-			coBase = new Location(x+1, y, z);
-			exBase = new Location(x-1, y, z);
-			base.rotX = 180;
-		} else if (etc.getServer().getBlockIdAt(x-1, y, z) == 90) {
-			coBase = new Location(x-1, y, z);
-			exBase = new Location(x+1, y, z);
-			base.rotX = 180;
-		} else if (etc.getServer().getBlockIdAt(x, y, z+1) == 90) {
-			coBase = new Location(x, y, z+1);
-			exBase = new Location(x, y, z-1);
-			base.rotX = 90;
-		} else if (etc.getServer().getBlockIdAt(x, y, z-1) == 90) {
-			coBase = new Location(x, y, z-1);
-			exBase = new Location(x, y, z+1);
-			base.rotX = 90;
-		}
+	private Blox topLeft;
+	private int modX;
+	private int modZ;
+	private SignPost id;
+	
+	private Portal () {
+	}
+	
+	private Portal (Blox topLeft, int modX, int modZ, SignPost id) {
+		this.topLeft = topLeft;
+		this.modX = modX;
+		this.modZ = modZ;
+		this.id = id;
 	}
 
 	public boolean same(Portal twin) {
@@ -76,6 +72,7 @@ public class Portal {
 
 		//PortalFacing facing = null;
 		Blox parent = new Blox(idParent.getX(), idParent.getY(), idParent.getZ());
+		Blox topleft = null;
 
 		int modX = 0;
 		int modZ = 0;
@@ -94,43 +91,37 @@ public class Portal {
 			modX -= 1;
 		}
 
-		//Blox entry = new Blox(entX+modX, entY, entZ+modZ);
-		Blox entry = parent.makeRelative(modX, 0, modZ);
+		Blox entry = parent.makeRelative(modX, -1, modZ);
 
 		if (entry.getType() == AIR && entry.makeRelative(0, -1, 0).getType() == OBSIDIAN) {
 			entry.setType(FIRE);
-			Stargate.broadcast("Burninating " + entry);
 
 			if (entry.getType() == PORTAL) {
 				entry.setType(AIR);
-				Stargate.broadcast("I'm making a note here, huge success!");
+				topleft = entry.makeRelative(modX * 2, 3, modZ * 2);
 			} else {
-				Stargate.broadcast("The cake is a lie!");
+				return null;
 			}
 		} else {
-			entry = parent.makeRelative(-modX, 0, -modZ);
-			if (entry.getType() == AIR && entry.makeRelative(0, -1, 0).getType() == OBSIDIAN) {
+			entry = parent.makeRelative(-modX, -1, -modZ);
+			Blox relative = entry.makeRelative(0, -1, 0);
+
+			if (entry.getType() == AIR && relative.getType() == OBSIDIAN) {
 				entry.setType(FIRE);
-				Stargate.broadcast("Burninating " + entry);
 
 				if (entry.getType() == PORTAL) {
 					entry.setType(AIR);
-					Stargate.broadcast("This was a triumph!");
+					topleft = entry.makeRelative(modX, 3, modZ);
 				} else {
-					Stargate.broadcast("Fake portal!");
+					return null;
 				}
 			} else {
-				Stargate.broadcast("This ain't a portal...");
+				return null;
 			}
 		}
+		
+		Portal portal = new Portal(topleft, modX, modZ, id);
 
-		return null;
-	}
-
-	public enum PortalFacing {
-		NORTH,
-		EAST,
-		SOUTH,
-		WEST
+		return portal;
 	}
 }
