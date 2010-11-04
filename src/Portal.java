@@ -74,16 +74,14 @@ public class Portal {
 		Blox[] frame = {
 			getBlockAt(1, 0),
 			getBlockAt(2, 0),
-			getBlockAt(3, 0),
 			getBlockAt(0, -1),
-			getBlockAt(4, -1),
+			getBlockAt(3, -1),
 			getBlockAt(0, -2),
-			getBlockAt(4, -2),
+			getBlockAt(3, -2),
 			getBlockAt(0, -3),
-			getBlockAt(4, -3),
+			getBlockAt(3, -3),
 			getBlockAt(1, -4),
-			getBlockAt(2, -4),
-			getBlockAt(3, -4),
+			getBlockAt(2, -4)
 		};
 		
 		return frame;
@@ -180,7 +178,6 @@ public class Portal {
 			topleft = entry.makeRelative(modX, 3, modZ);
 
 		Portal portal = new Portal(topleft, modX, modZ, id);
-
 		return portal;
 	}
 	
@@ -199,11 +196,7 @@ public class Portal {
 	public static Portal getByEntrance(Blox block) {
 		return lookupEntrances.get(block.toString());
 	}
-	
-	public static Portal getByBlock(Location location) {
-		return getByBlock(new Blox(location));
-	}
-	
+
 	public static Portal getByBlock(Block block) {
 		return getByBlock(new Blox(block));
 	}
