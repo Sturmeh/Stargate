@@ -17,15 +17,21 @@ public class Stargate extends SuperPlugin {
 
 	private class Listener extends PluginListener {
 		public void onPlayerMove(Player player, Location from, Location to) {	
+			Portal portal = Portal.getByEntrance(to);
 			
+			if ((portal != null) && (portal.isOpen())) {
+				player.sendMessage(Colors.Green + "Teleport text goes here");
+			}
 		}
 		
 		public boolean onComplexBlockChange(Player player, ComplexBlock signBlock) {
 			if (!(signBlock instanceof Sign)) return false;
 			SignPost sign = new SignPost((Sign)signBlock);
-			@SuppressWarnings("unused")
 			Portal portal = Portal.createPortal(sign);
 
+			if (portal != null) {
+				player.sendMessage(Colors.Green + "You feel a slight tremble in the ground around the portal");
+			}
 			
 			return false;
 		}

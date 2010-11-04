@@ -34,20 +34,20 @@ public class Portal {
 	}
 
 	public boolean isOpen() {
-		Blox base = getBlockAt(1, -3, 0);
+		Blox base = getBlockAt(-1, -3);
 		return base.getType() == PORTAL;
 	}
 
 	public void open() {
 		if (!isOpen())
 		{
-			Blox base = getBlockAt(1, -3, 0);
+			Blox base = getBlockAt(-1, -3);
 			base.setType(FIRE);
 		}
 	}
 
 	public void close() {
-		Blox base = getBlockAt(1, -3, 0);
+		Blox base = getBlockAt(-1, -3);
 		base.setType(AIR);
 	}
 	
@@ -70,8 +70,8 @@ public class Portal {
 	
 	public Blox[] getEntrances() {
 		Blox[] entrances = {
-			getBlockAt(1, -3, 0),
-			getBlockAt(2, -3, 0)
+			getBlockAt(-1, -3),
+			getBlockAt(-2, -3)
 		};
 		
 		return entrances;
@@ -103,8 +103,8 @@ public class Portal {
 		close();
 	}
 	
-	private Blox getBlockAt(int x, int y, int z) {
-		return topLeft.makeRelative(x * modX, y, z * modZ);
+	private Blox getBlockAt(int left, int depth) {
+		return topLeft.makeRelative(left * modX, depth, left * modZ);
 	}
 	
 	private void register() {
@@ -119,8 +119,7 @@ public class Portal {
 	public static Portal createPortal(SignPost id) {
 		Block idParent = id.getParent();
 
-		if (idParent.getType() != OBSIDIAN) 
-			return null;
+		if (idParent.getType() != OBSIDIAN) return null;
 
 		Blox parent = new Blox(idParent.getX(), idParent.getY(), idParent.getZ());
 		Blox topleft = null;
@@ -176,11 +175,15 @@ public class Portal {
 		return lookupNames.get(name);
 	}
 	
+	public static Portal getByEntrance(Location location) {
+		return getByEntrance(new Blox(location));
+	}
+	
 	public static Portal getByEntrance(Block block) {
 		return getByEntrance(new Blox(block));
 	}
 	
 	public static Portal getByEntrance(Blox block) {
-		return lookupNames.get(block.toString());
+		return lookupEntrances.get(block.toString());
 	}
 }

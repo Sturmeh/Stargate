@@ -15,6 +15,12 @@ public class Blox {
 		this.z = block.getZ();
 	}
 	
+	public Blox (Location location) {
+		this.x = (int)location.x;
+		this.y = (int)location.y;
+		this.z = (int)location.z;
+	}
+	
 	public Blox makeRelative(int x, int y, int z) {
 		return new Blox(this.x + x, this.y + y, this.z + z);
 	}
