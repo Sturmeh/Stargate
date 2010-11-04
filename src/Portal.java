@@ -11,7 +11,7 @@ public class Portal {
 	public static final int AIR = 0;
 	public static final int PORTAL = 90;
 	private static final HashMap<String, Portal> lookupNames = new HashMap<String, Portal>();
-	private static final HashMap<Blox, Portal> lookupEntrances = new HashMap<Blox, Portal>();
+	private static final HashMap<String, Portal> lookupEntrances = new HashMap<String, Portal>();
 
 	private Blox topLeft;
 	private int modX;
@@ -29,6 +29,8 @@ public class Portal {
 		this.id = id;
 		
 		this.setName(id.getText(0));
+		
+		this.register();
 	}
 
 	public boolean isOpen() {
@@ -52,14 +54,18 @@ public class Portal {
 	public void setName(String name) {
 		this.name = name.toLowerCase().trim();
 		
-		id.setText(0, "--" + name + "--");
-		id.setText(1, "");
-		id.setText(2, "");
-		id.setText(3, "");
+		drawSign();
 	}
 	
 	public String getName() {
 		return this.name;
+	}
+	
+	public void drawSign() {
+		id.setText(0, "--" + name + "--");
+		id.setText(1, "");
+		id.setText(2, "");
+		id.setText(3, "");
 	}
 	
 	public Blox[] getEntrances() {
@@ -71,8 +77,43 @@ public class Portal {
 		return entrances;
 	}
 	
+	@Override
+	public int hashCode() {
+		return getName().hashCode();
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) return true;
+		if (obj == null) return false;
+		if (getClass() != obj.getClass()) return false;
+		
+		Portal portal = (Portal) obj;
+		return this.getName() == portal.getName(); 
+	}
+	
+	public void unregister() {
+		Blox[] entrances = getEntrances();
+		lookupNames.remove(getName());
+		
+		for (Blox entrance : entrances) {
+			lookupEntrances.remove(entrance.toString());
+		}
+		
+		close();
+	}
+	
 	private Blox getBlockAt(int x, int y, int z) {
 		return topLeft.makeRelative(x * modX, y, z * modZ);
+	}
+	
+	private void register() {
+		Blox[] entrances = getEntrances();
+		lookupNames.put(getName(), this);
+		
+		for (Blox entrance : entrances) {
+			lookupEntrances.put(entrance.toString(), this);
+		}
 	}
 
 	public static Portal createPortal(SignPost id) {
@@ -131,18 +172,15 @@ public class Portal {
 		return portal;
 	}
 	
-	@Override
-	public int hashCode() {
-		return getName().hashCode();
+	public static Portal getByName(String name) {
+		return lookupNames.get(name);
 	}
 	
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) return true;
-		if (obj == null) return false;
-		if (getClass() != obj.getClass()) return false;
-		
-		Portal portal = (Portal) obj;
-		return this.getName() == portal.getName(); 
+	public static Portal getByEntrance(Block block) {
+		return getByEntrance(new Blox(block));
+	}
+	
+	public static Portal getByEntrance(Blox block) {
+		return lookupNames.get(block.toString());
 	}
 }

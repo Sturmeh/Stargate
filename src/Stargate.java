@@ -1,4 +1,3 @@
-import java.util.ArrayList;
 import java.util.Random;
 /**
  * Stargate.java - Plug-in for hey0's minecraft mod.
