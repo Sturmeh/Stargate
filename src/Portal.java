@@ -11,7 +11,7 @@ public class Portal {
 	public static final int AIR = 0;
 	public static final int PORTAL = 90;
 	public static final int SIGN = 68;
-	private static final HashMap<String, Portal> signRegistry = new HashMap<String, Portal>();
+	private static final HashMap<String, Portal> lookupBlocks = new HashMap<String, Portal>();
 	private static final HashMap<String, Portal> lookupNames = new HashMap<String, Portal>();
 	private static final HashMap<String, Portal> lookupEntrances = new HashMap<String, Portal>();
 
@@ -21,9 +21,6 @@ public class Portal {
 	private SignPost id;
 	private String name;
 	
-	private Portal () {
-	}
-	
 	private Portal (Blox topLeft, int modX, int modZ, SignPost id) {
 		this.topLeft = topLeft;
 		this.modX = modX;
@@ -31,21 +28,20 @@ public class Portal {
 		this.id = id;
 		
 		this.setName(id.getText(0));
-		
 		this.register();
 	}
 
 	public boolean isOpen() {
-		return getBlockAt(-1, -3).getType() == PORTAL;
+		return getBlockAt(1, -3).getType() == PORTAL;
 	}
 
 	public void open() {
 		if (!isOpen())
-			getBlockAt(-1, -3).setType(FIRE);
+			getBlockAt(1, -3).setType(FIRE);
 	}
 
 	public void close() {
-		getBlockAt(-1, -3).setType(AIR);
+		getBlockAt(1, -3).setType(AIR);
 	}
 	
 	public void setName(String name) {
@@ -60,18 +56,37 @@ public class Portal {
 	
 	public void drawSign() {
 		id.setText(0, "--" + name + "--");
-		id.setText(1, "");
-		id.setText(2, "");
-		id.setText(3, "");
+		id.setText(1, "STURMEH");
+		id.setText(2, "IS THE");
+		id.setText(3, "BEST");
 	}
 	
 	public Blox[] getEntrances() {
 		Blox[] entrances = {
-			getBlockAt(-1, -3),
-			getBlockAt(-2, -3)
+			getBlockAt(1, -3),
+			getBlockAt(2, -3)
 		};
 		
 		return entrances;
+	}
+	
+	public Blox[] getFrame() {
+		Blox[] frame = {
+			getBlockAt(1, 0),
+			getBlockAt(2, 0),
+			getBlockAt(3, 0),
+			getBlockAt(0, -1),
+			getBlockAt(4, -1),
+			getBlockAt(0, -2),
+			getBlockAt(4, -2),
+			getBlockAt(0, -3),
+			getBlockAt(4, -3),
+			getBlockAt(1, -4),
+			getBlockAt(2, -4),
+			getBlockAt(3, -4),
+		};
+		
+		return frame;
 	}
 	
 	@Override
@@ -90,29 +105,33 @@ public class Portal {
 	}
 	
 	public void unregister() {
-		Blox[] entrances = getEntrances();
 		lookupNames.remove(getName());
-		signRegistry.remove(new Blox(id.getBlock()).toString());
 		
-		for (Blox entrance : entrances) {
+		for (Blox frame : getFrame())
+			lookupBlocks.remove(frame.toString());
+		// Include the sign.
+		lookupBlocks.remove(new Blox(id.getBlock()).toString());
+		
+		for (Blox entrance : getEntrances())
 			lookupEntrances.remove(entrance.toString());
-		}
 		
 		close();
 	}
 	
 	private Blox getBlockAt(int left, int depth) {
-		return topLeft.makeRelative(left * modX, depth, left * modZ);
+		return topLeft.makeRelative(-left * modX, depth, -left * modZ);
 	}
 	
 	private void register() {
-		Blox[] entrances = getEntrances();
 		lookupNames.put(getName(), this);
-		signRegistry.put(new Blox(id.getBlock()).toString(), this);
 		
-		for (Blox entrance : entrances) {
+		for (Blox frame : getFrame())
+			lookupBlocks.put(frame.toString(), this);
+		// Include the sign.
+		lookupBlocks.put(new Blox(id.getBlock()).toString(), this);
+		
+		for (Blox entrance : getEntrances())
 			lookupEntrances.put(entrance.toString(), this);
-		}
 	}
 
 	public static Portal createPortal(SignPost id) {
@@ -181,15 +200,15 @@ public class Portal {
 		return lookupEntrances.get(block.toString());
 	}
 	
-	public static Portal getBySign(Location location) {
-		return getBySign(new Blox(location));
+	public static Portal getByBlock(Location location) {
+		return getByBlock(new Blox(location));
 	}
 	
-	public static Portal getBySign(Block block) {
-		return getBySign(new Blox(block));
+	public static Portal getByBlock(Block block) {
+		return getByBlock(new Blox(block));
 	}
 	
-	public static Portal getBySign(Blox block) {
-		return signRegistry.get(block.toString());
+	public static Portal getByBlock(Blox block) {
+		return lookupBlocks.get(block.toString());
 	}
 }

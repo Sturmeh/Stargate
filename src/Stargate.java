@@ -26,8 +26,8 @@ public class Stargate extends SuperPlugin {
 		}
 		
 		public boolean onBlockDestroy(Player player, Block block) { 
-			if (block.getType() != Portal.SIGN) return false;
-			Portal gate = Portal.getBySign(block);
+			if (block.getType() != Portal.SIGN && block.getType() != Portal.OBSIDIAN) return false;
+			Portal gate = Portal.getByBlock(block);
 			if (gate == null) return false;
 			if (!player.canUseCommand("/stargate")) return true;
 			if (block.getStatus() == 3) gate.unregister();
@@ -39,9 +39,8 @@ public class Stargate extends SuperPlugin {
 			SignPost sign = new SignPost((Sign)signBlock);
 			Portal portal = Portal.createPortal(sign);
 
-			if (portal != null) {
-				player.sendMessage(Colors.Green + "You feel a slight tremble in the ground around the portal");
-			}
+			if (portal != null)
+				player.sendMessage(Colors.Green + "You feel a slight tremble in the ground around the portal...");
 			
 			return false;
 		}
