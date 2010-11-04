@@ -17,6 +17,7 @@ public class Stargate extends SuperPlugin {
 		etc.getLoader().addListener(PluginLoader.Hook.PLAYER_MOVE, listener, this, PluginListener.Priority.MEDIUM);
 		etc.getLoader().addListener(PluginLoader.Hook.BLOCK_DESTROYED, listener, this, PluginListener.Priority.MEDIUM);
 		etc.getLoader().addListener(PluginLoader.Hook.COMPLEX_BLOCK_CHANGE, listener, this, PluginListener.Priority.MEDIUM);
+		etc.getLoader().addListener(PluginLoader.Hook.BLOCK_CREATED, listener, this, PluginListener.Priority.MEDIUM);
 	}
 	
 	public void reloadExtra() {
@@ -53,6 +54,19 @@ public class Stargate extends SuperPlugin {
 
 			if (portal != null)
 				player.sendMessage(Colors.Green + registerMessage);
+			
+			return false;
+		}
+		
+		public boolean onBlockCreate(Player player, Block blockPlaced, Block blockClicked, int itemInHand) {
+			if (blockClicked.getType() == Portal.SIGN) {
+				Portal portal = Portal.getByBlock(blockClicked);
+				
+				if (portal != null) {
+					portal.cycleDestination();
+					return true;
+				}
+			}
 			
 			return false;
 		}

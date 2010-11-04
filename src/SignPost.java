@@ -40,6 +40,10 @@ public class SignPost {
 		return result.toString().toLowerCase();
 	}
 	
+	public void update() {
+		_sign.update();
+	}
+	
 	private void findParent() {
 		int offsetX = 0;
 		int offsetY = 0;

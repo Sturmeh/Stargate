@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
@@ -14,21 +15,25 @@ public class Portal {
 	private static final HashMap<String, Portal> lookupBlocks = new HashMap<String, Portal>();
 	private static final HashMap<String, Portal> lookupNames = new HashMap<String, Portal>();
 	private static final HashMap<String, Portal> lookupEntrances = new HashMap<String, Portal>();
+	private static final ArrayList<String> allPortals = new ArrayList<String>();
 
 	private Blox topLeft;
 	private int modX;
 	private int modZ;
 	private SignPost id;
 	private String name;
+	private String destination;
 	
 	private Portal (Blox topLeft, int modX, int modZ, SignPost id) {
 		this.topLeft = topLeft;
 		this.modX = modX;
 		this.modZ = modZ;
 		this.id = id;
-		
+		this.destination = "";
+
 		this.setName(id.getText(0));
 		this.register();
+		cycleDestination();
 	}
 
 	public boolean isOpen() {
@@ -51,14 +56,37 @@ public class Portal {
 	}
 	
 	public String getName() {
-		return this.name;
+		return name;
+	}
+	
+	public void cycleDestination() {
+		int index = allPortals.indexOf(destination);
+		if (++index >= allPortals.size()) index = 0;
+		destination = allPortals.get(index);
+		
+		drawSign();
 	}
 	
 	public void drawSign() {
 		id.setText(0, "--" + name + "--");
-		id.setText(1, "STURMEH");
-		id.setText(2, "IS THE");
-		id.setText(3, "BEST");
+		int max = allPortals.size() - 1;
+		int done = 0;
+
+		if (max > 0) {
+			int index = allPortals.indexOf(destination);
+			
+			if ((index == max) && (max > 1) && (++done <= 3)) id.setText(done, allPortals.get(index - 2));
+			if ((index > 0) && (++done <= 3)) id.setText(done, allPortals.get(index - 1));
+			if (++done <= 3) id.setText(done, " >" + destination + "< ");
+			if ((max >= index + 1) && (++done <= 3)) id.setText(done, allPortals.get(index + 1));
+			if ((max >= index + 2) && (++done <= 3)) id.setText(done, allPortals.get(index + 2));
+		}
+		
+		for (done++; done <= 3; done++) {
+			id.setText(done, "");
+		}
+		
+		id.update();
 	}
 	
 	public Blox[] getEntrances() {
@@ -113,7 +141,13 @@ public class Portal {
 		for (Blox entrance : getEntrances())
 			lookupEntrances.remove(entrance.toString());
 		
+		allPortals.remove(getName());
 		close();
+		
+		id.setText(0, getName());
+		id.setText(1, "");
+		id.setText(2, "");
+		id.setText(3, "");
 	}
 	
 	private Blox getBlockAt(int left, int depth) {
@@ -130,6 +164,8 @@ public class Portal {
 		
 		for (Blox entrance : getEntrances())
 			lookupEntrances.put(entrance.toString(), this);
+		
+		allPortals.add(getName());
 	}
 
 	public static Portal createPortal(SignPost id) {
