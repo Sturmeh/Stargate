@@ -12,6 +12,7 @@ public class Stargate extends SuperPlugin {
 
 	public void initializeExtra() {
 		etc.getLoader().addListener(PluginLoader.Hook.PLAYER_MOVE, listener, this, PluginListener.Priority.MEDIUM);
+		etc.getLoader().addListener(PluginLoader.Hook.BLOCK_DESTROYED, listener, this, PluginListener.Priority.MEDIUM);
 		etc.getLoader().addListener(PluginLoader.Hook.COMPLEX_BLOCK_CHANGE, listener, this, PluginListener.Priority.MEDIUM);
 	}
 
@@ -22,6 +23,15 @@ public class Stargate extends SuperPlugin {
 			if ((portal != null) && (portal.isOpen())) {
 				player.sendMessage(Colors.Green + "Teleport text goes here");
 			}
+		}
+		
+		public boolean onBlockDestroy(Player player, Block block) { 
+			if (block.getType() != Portal.SIGN) return false;
+			Portal gate = Portal.getBySign(block);
+			if (gate == null) return false;
+			if (!player.canUseCommand("/stargate")) return true;
+			if (block.getStatus() == 3) gate.unregister();
+			return false;
 		}
 		
 		public boolean onComplexBlockChange(Player player, ComplexBlock signBlock) {

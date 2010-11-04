@@ -10,6 +10,8 @@ public class Portal {
 	public static final int FIRE = 51;
 	public static final int AIR = 0;
 	public static final int PORTAL = 90;
+	public static final int SIGN = 68;
+	private static final HashMap<String, Portal> signRegistry = new HashMap<String, Portal>();
 	private static final HashMap<String, Portal> lookupNames = new HashMap<String, Portal>();
 	private static final HashMap<String, Portal> lookupEntrances = new HashMap<String, Portal>();
 
@@ -34,21 +36,16 @@ public class Portal {
 	}
 
 	public boolean isOpen() {
-		Blox base = getBlockAt(-1, -3);
-		return base.getType() == PORTAL;
+		return getBlockAt(-1, -3).getType() == PORTAL;
 	}
 
 	public void open() {
 		if (!isOpen())
-		{
-			Blox base = getBlockAt(-1, -3);
-			base.setType(FIRE);
-		}
+			getBlockAt(-1, -3).setType(FIRE);
 	}
 
 	public void close() {
-		Blox base = getBlockAt(-1, -3);
-		base.setType(AIR);
+		getBlockAt(-1, -3).setType(AIR);
 	}
 	
 	public void setName(String name) {
@@ -95,6 +92,7 @@ public class Portal {
 	public void unregister() {
 		Blox[] entrances = getEntrances();
 		lookupNames.remove(getName());
+		signRegistry.remove(new Blox(id.getBlock()).toString());
 		
 		for (Blox entrance : entrances) {
 			lookupEntrances.remove(entrance.toString());
@@ -110,6 +108,7 @@ public class Portal {
 	private void register() {
 		Blox[] entrances = getEntrances();
 		lookupNames.put(getName(), this);
+		signRegistry.put(new Blox(id.getBlock()).toString(), this);
 		
 		for (Blox entrance : entrances) {
 			lookupEntrances.put(entrance.toString(), this);
@@ -137,35 +136,30 @@ public class Portal {
 			modX -= 1;
 		}
 
-		Blox entry = parent.makeRelative(modX, -1, modZ);
-
-		if (entry.getType() == AIR && entry.makeRelative(0, -1, 0).getType() == OBSIDIAN) {
-			entry.setType(FIRE);
-
-			if (entry.getType() == PORTAL) {
-				entry.setType(AIR);
-				topleft = entry.makeRelative(modX * 2, 3, modZ * 2);
-			} else {
-				return null;
-			}
-		} else {
-			entry = parent.makeRelative(-modX, -1, -modZ);
-			Blox relative = entry.makeRelative(0, -1, 0);
-
-			if (entry.getType() == AIR && relative.getType() == OBSIDIAN) {
-				entry.setType(FIRE);
-
-				if (entry.getType() == PORTAL) {
-					entry.setType(AIR);
-					topleft = entry.makeRelative(modX, 3, modZ);
-				} else {
-					return null;
-				}
-			} else {
-				return null;
-			}
+		int modN = 1; // Negative modifier for sign offset.
+		Blox entry = null;
+		
+		while (Math.abs(modN) == 1) { // For 1, -1
+			entry = parent.makeRelative(modX*modN, -1, modZ*modN);
+			if (entry.getType() != AIR || entry.makeRelative(0, -1, 0).getType() != OBSIDIAN)
+				modN -= 2;
+			else 
+				break;
 		}
 		
+		if (Math.abs(modN) != 1) return null;
+			
+		entry.setType(FIRE);
+		boolean isPortal = (entry.getType() == PORTAL);
+		
+		entry.setType(AIR);
+		if (!isPortal) return null;
+		
+		if (modN > 0)
+			topleft = entry.makeRelative(modX * 2, 3, modZ * 2);
+		else
+			topleft = entry.makeRelative(modX, 3, modZ);
+
 		Portal portal = new Portal(topleft, modX, modZ, id);
 
 		return portal;
@@ -185,5 +179,17 @@ public class Portal {
 	
 	public static Portal getByEntrance(Blox block) {
 		return lookupEntrances.get(block.toString());
+	}
+	
+	public static Portal getBySign(Location location) {
+		return getBySign(new Blox(location));
+	}
+	
+	public static Portal getBySign(Block block) {
+		return getBySign(new Blox(block));
+	}
+	
+	public static Portal getBySign(Blox block) {
+		return signRegistry.get(block.toString());
 	}
 }
