@@ -7,23 +7,29 @@ import java.util.Random;
 public class Stargate extends SuperPlugin {
 	public final Listener listener = new Listener();
 	Random generator = new Random(etc.getServer().getTime());
-	private static String teleportMessage = "This sentence has been constructed to match the length of...";
+	private static String teleportMessage = "You feel weightless as the portal carries you to new land...";
 	private static String registerMessage = "You feel a slight tremble in the ground around the portal...";
 	private static String destroyzMessage = "You feel a great shift in energy, as it leaves the portal...";
+	private static String noownersMessage = "You feel a great power, yet feel a lack of belonging here...";
+	private static String unselectMessage = "You expect something to happen and seem puzzled, what now...";
+	private static String collisinMessage = "You anticipate a great surge, but it appears it's blocked...";
 	
 	public Stargate() { super("stargate"); }
 
 	public void initializeExtra() {
 		etc.getLoader().addListener(PluginLoader.Hook.PLAYER_MOVE, listener, this, PluginListener.Priority.MEDIUM);
+		etc.getLoader().addListener(PluginLoader.Hook.BLOCK_CREATED, listener, this, PluginListener.Priority.MEDIUM);
 		etc.getLoader().addListener(PluginLoader.Hook.BLOCK_DESTROYED, listener, this, PluginListener.Priority.MEDIUM);
 		etc.getLoader().addListener(PluginLoader.Hook.COMPLEX_BLOCK_CHANGE, listener, this, PluginListener.Priority.MEDIUM);
-		etc.getLoader().addListener(PluginLoader.Hook.BLOCK_CREATED, listener, this, PluginListener.Priority.MEDIUM);
 	}
 	
 	public void reloadExtra() {
 		teleportMessage = config.getString("teleport-message", teleportMessage);
 		registerMessage = config.getString("portal-create-message", registerMessage);
 		destroyzMessage = config.getString("portal-destroy-message", destroyzMessage);
+		noownersMessage = config.getString("not-owner-message", noownersMessage);
+		unselectMessage = config.getString("not-selected-message", unselectMessage);
+		collisinMessage = config.getString("other-side-blocked-message", collisinMessage);
 	}
 
 	private class Listener extends PluginListener {
@@ -35,12 +41,12 @@ public class Stargate extends SuperPlugin {
 					Portal destination = portal.getDestination();
 					
 					player.sendMessage(Colors.Blue + teleportMessage);
-					player.teleportTo(destination.getExit());
+					//player.teleportTo(destination.getExit());
 					
 					portal.close();
 					destination.close();
 				} else {
-					player.sendMessage(Colors.Red + "Get your own portal!"); // TODO: Message
+					player.sendMessage(Colors.Red + noownersMessage);
 				}
 			}
 		}
@@ -57,9 +63,9 @@ public class Stargate extends SuperPlugin {
 				
 				if (!gate.isOpen()) {
 					if (destination == null) {
-						player.sendMessage(Colors.Red + "You must select a destination"); // TODO: Message
+						player.sendMessage(Colors.Red + unselectMessage); // TODO: Message
 					} else if (destination.isOpen()) {
-						player.sendMessage(Colors.Red + "The destination is already in use"); // TODO: Message
+						player.sendMessage(Colors.Red + collisinMessage); // TODO: Message
 					} else {
 						gate.open(player);
 						destination.open(player);

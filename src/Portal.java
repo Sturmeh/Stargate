@@ -21,16 +21,18 @@ public class Portal {
 	private Blox topLeft;
 	private int modX;
 	private int modZ;
+	private float rotX;
 	private SignPost id;
 	private String name;
 	private String destination;
 	private Blox button;
 	private Player player;
 	
-	private Portal (Blox topLeft, int modX, int modZ, SignPost id, Blox button) {
+	private Portal (Blox topLeft, int modX, int modZ, float rotX, SignPost id, Blox button) {
 		this.topLeft = topLeft;
 		this.modX = modX;
 		this.modZ = modZ;
+		this.rotX = rotX;
 		this.id = id;
 		this.destination = "";
 		this.button = button;
@@ -64,8 +66,8 @@ public class Portal {
 	
 	public Location getExit() {
 		Blox exit = getBlockAt(1, -3).makeRelative(modZ, 0, modX);
-		
-		return new Location(exit.getX(), exit.getY(), exit.getZ(), 0, 0); // TODO: Need rotation based on gate facing
+		exit.setType(20);
+		return new Location(exit.getX(), exit.getY(), exit.getZ(), rotX, 0);
 	}
 	
 	public void setName(String name) {
@@ -207,15 +209,20 @@ public class Portal {
 
 		int modX = 0;
 		int modZ = 0;
+		float rotX = 0f;
 
 		if (idParent.getX() > id.getBlock().getX()) {
 			modZ -= 1;
+			rotX = 90f;
 		} else if (idParent.getX() < id.getBlock().getX()) {
 			modZ += 1;
+			rotX = 270f;
 		} else if (idParent.getZ() > id.getBlock().getZ()) {
 			modX += 1;
+			rotX = 180f;
 		} else if (idParent.getZ() < id.getBlock().getZ()) {
 			modX -= 1;
+			rotX = 0f;
 		}
 
 		int modN = 1; // Negative modifier for sign offset.
@@ -245,7 +252,7 @@ public class Portal {
 		Blox button = parent.makeRelative(modX * modN * 3 + modZ, 0, modZ * modN * 3 + -modX);
 		button.setType(BUTTON);
 
-		Portal portal = new Portal(topleft, modX, modZ, id, button);
+		Portal portal = new Portal(topleft, modX, modZ, rotX, id, button);
 		return portal;
 	}
 	
