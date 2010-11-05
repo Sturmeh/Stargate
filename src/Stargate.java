@@ -53,8 +53,9 @@ public class Stargate extends SuperPlugin {
 			if (!player.canUseCommand("/stargate")) return true;
 			
 			if ((block.getType() == Portal.BUTTON) && (block.getStatus() == 0)) {
+				Portal destination = gate.getDestination();
+				
 				if (!gate.isOpen()) {
-					Portal destination = gate.getDestination();
 					if (destination == null) {
 						player.sendMessage(Colors.Red + "You must select a destination"); // TODO: Message
 					} else if (destination.isOpen()) {
@@ -65,6 +66,7 @@ public class Stargate extends SuperPlugin {
 					}
 				} else {
 					gate.close();
+					if (destination != null) destination.close();
 				}
 				
 				return true;
