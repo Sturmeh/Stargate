@@ -31,19 +31,48 @@ public class Stargate extends SuperPlugin {
 			Portal portal = Portal.getByEntrance(to);
 			
 			if ((portal != null) && (portal.isOpen())) {
-				player.sendMessage(Colors.Blue + teleportMessage);
+				if (portal.isOpenFor().getName() == player.getName()) {
+					Portal destination = portal.getDestination();
+					
+					player.sendMessage(Colors.Blue + teleportMessage);
+					player.teleportTo(destination.getExit());
+					
+					portal.close();
+					destination.close();
+				} else {
+					player.sendMessage(Colors.Red + "Get your own portal!"); // TODO: Message
+				}
 			}
 		}
 		
 		public boolean onBlockDestroy(Player player, Block block) { 
-			if (block.getType() != Portal.SIGN && block.getType() != Portal.OBSIDIAN) return false;
+			if (block.getType() != Portal.SIGN && block.getType() != Portal.OBSIDIAN && block.getType() != Portal.BUTTON) return false;
 			Portal gate = Portal.getByBlock(block);
+			
 			if (gate == null) return false;
 			if (!player.canUseCommand("/stargate")) return true;
-			if (block.getStatus() == 3) {
+			
+			if ((block.getType() == Portal.BUTTON) && (block.getStatus() == 0)) {
+				if (!gate.isOpen()) {
+					Portal destination = gate.getDestination();
+					if (destination == null) {
+						player.sendMessage(Colors.Red + "You must select a destination"); // TODO: Message
+					} else if (destination.isOpen()) {
+						player.sendMessage(Colors.Red + "The destination is already in use"); // TODO: Message
+					} else {
+						gate.open(player);
+						destination.open(player);
+					}
+				} else {
+					gate.close();
+				}
+				
+				return true;
+			} else if (block.getStatus() == 3) {
 				gate.unregister();
 				player.sendMessage(Colors.Red + destroyzMessage);
 			}
+			
 			return false;
 		}
 		

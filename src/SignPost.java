@@ -1,29 +1,29 @@
 public class SignPost {
-	private Block _parent;
-	private Sign _sign;
-	private Block _block;
+	private Block parent;
+	private Sign sign;
+	private Block block;
 	
 	public SignPost(Sign sign) {
-		_sign = sign;
-		_block = etc.getServer().getBlockAt(sign.getX(), sign.getY(), sign.getZ());
+		this.sign = sign;
+		block = etc.getServer().getBlockAt(sign.getX(), sign.getY(), sign.getZ());
 		
 		findParent();
 	}
 	
 	public Block getParent() {
-		return _parent;
+		return parent;
 	}
 	
 	public Block getBlock() {
-		return _block;
+		return block;
 	}
 	
 	public String getText(int index) {
-		return _sign.getText(index);
+		return sign.getText(index);
 	}
 	
 	public void setText(int index, String value) {
-		_sign.setText(index, value);
+		sign.setText(index, value);
 	}
 	
 	public String getIdText() {
@@ -41,7 +41,7 @@ public class SignPost {
 	}
 	
 	public void update() {
-		_sign.update();
+		sign.update();
 	}
 	
 	private void findParent() {
@@ -49,21 +49,21 @@ public class SignPost {
 		int offsetY = 0;
 		int offsetZ = 0;
 		
-		if (_block.getType() == 68) {
-			if (_block.getData() == 0x2) {
+		if (block.getType() == 68) {
+			if (block.getData() == 0x2) {
 				offsetZ = 1;
-			} else if (_block.getData() == 0x3) {
+			} else if (block.getData() == 0x3) {
 				offsetZ = -1;
-			} else if (_block.getData() == 0x4) {
+			} else if (block.getData() == 0x4) {
 				offsetX = 1;
-			} else if (_block.getData() == 0x5) {
+			} else if (block.getData() == 0x5) {
 				offsetX = -1;
 			}
-		} else if (_block.getType() == 63) {
+		} else if (block.getType() == 63) {
 			offsetY = -1;
 		}
 		
-		_parent = etc.getServer().getBlockAt(_sign.getX() + offsetX, _sign.getY() + offsetY, _sign.getZ() + offsetZ);		
+		parent = etc.getServer().getBlockAt(sign.getX() + offsetX, sign.getY() + offsetY, sign.getZ() + offsetZ);		
 	}
 	
 	public static SignPost getFromBlock(Block block) {

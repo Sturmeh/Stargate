@@ -12,6 +12,7 @@ public class Portal {
 	public static final int AIR = 0;
 	public static final int PORTAL = 90;
 	public static final int SIGN = 68;
+	public static final int BUTTON = 77;
 	private static final HashMap<String, Portal> lookupBlocks = new HashMap<String, Portal>();
 	private static final HashMap<String, Portal> lookupNames = new HashMap<String, Portal>();
 	private static final HashMap<String, Portal> lookupEntrances = new HashMap<String, Portal>();
@@ -23,13 +24,16 @@ public class Portal {
 	private SignPost id;
 	private String name;
 	private String destination;
+	private Blox button;
+	private Player player;
 	
-	private Portal (Blox topLeft, int modX, int modZ, SignPost id) {
+	private Portal (Blox topLeft, int modX, int modZ, SignPost id, Blox button) {
 		this.topLeft = topLeft;
 		this.modX = modX;
 		this.modZ = modZ;
 		this.id = id;
 		this.destination = "";
+		this.button = button;
 
 		this.setName(id.getText(0));
 		this.register();
@@ -40,13 +44,28 @@ public class Portal {
 		return getBlockAt(1, -3).getType() == PORTAL;
 	}
 
-	public void open() {
-		if (!isOpen())
-			getBlockAt(1, -3).setType(FIRE);
+	public boolean open(Player openFor) {
+		if (isOpen()) return false;
+		
+		getBlockAt(1, -3).setType(FIRE);
+		player = openFor;
+		
+		return true;
 	}
 
 	public void close() {
 		getBlockAt(1, -3).setType(AIR);
+		player = null;
+	}
+	
+	public Player isOpenFor() {
+		return player;
+	}
+	
+	public Location getExit() {
+		Blox exit = getBlockAt(1, -3).makeRelative(modZ, 0, modX);
+		
+		return new Location(exit.getX(), exit.getY(), exit.getZ(), 0, 0); // TODO: Need rotation based on gate facing
 	}
 	
 	public void setName(String name) {
@@ -57,6 +76,14 @@ public class Portal {
 	
 	public String getName() {
 		return name;
+	}
+	
+	public Portal getDestination() {
+		return Portal.getByName(destination);
+	}
+	
+	public String getDestinationName() {
+		return destination;
 	}
 	
 	public void cycleDestination() {
@@ -135,8 +162,9 @@ public class Portal {
 		
 		for (Blox frame : getFrame())
 			lookupBlocks.remove(frame.toString());
-		// Include the sign.
+		// Include the sign and button
 		lookupBlocks.remove(new Blox(id.getBlock()).toString());
+		lookupBlocks.remove(button.toString());
 		
 		for (Blox entrance : getEntrances())
 			lookupEntrances.remove(entrance.toString());
@@ -159,8 +187,9 @@ public class Portal {
 		
 		for (Blox frame : getFrame())
 			lookupBlocks.put(frame.toString(), this);
-		// Include the sign.
+		// Include the sign and button
 		lookupBlocks.put(new Blox(id.getBlock()).toString(), this);
+		lookupBlocks.put(button.toString(), this);
 		
 		for (Blox entrance : getEntrances())
 			lookupEntrances.put(entrance.toString(), this);
@@ -212,8 +241,11 @@ public class Portal {
 			topleft = entry.makeRelative(modX * 2, 3, modZ * 2);
 		else
 			topleft = entry.makeRelative(modX, 3, modZ);
+		
+		Blox button = parent.makeRelative(modX * modN * 3 + modZ, 0, modZ * modN * 3 + -modX);
+		button.setType(BUTTON);
 
-		Portal portal = new Portal(topleft, modX, modZ, id);
+		Portal portal = new Portal(topleft, modX, modZ, id, button);
 		return portal;
 	}
 	
