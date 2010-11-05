@@ -78,6 +78,14 @@ public class Portal {
 		return name;
 	}
 	
+	public void setDestination(Portal destination) {
+		setDestination(destination.getName());
+	}
+	
+	public void setDestination(String destination) {
+		this.destination = destination;
+	}
+	
 	public Portal getDestination() {
 		return Portal.getByName(destination);
 	}

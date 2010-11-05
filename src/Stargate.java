@@ -62,13 +62,14 @@ public class Stargate extends SuperPlugin {
 				Portal destination = gate.getDestination();
 				
 				if (!gate.isOpen()) {
-					if (destination == null) {
-						player.sendMessage(Colors.Red + unselectMessage); // TODO: Message
+					if ((destination == null) || (destination == gate)) {
+						player.sendMessage(Colors.Red + unselectMessage);
 					} else if (destination.isOpen()) {
-						player.sendMessage(Colors.Red + collisinMessage); // TODO: Message
+						player.sendMessage(Colors.Red + collisinMessage);
 					} else {
 						gate.open(player);
 						destination.open(player);
+						destination.setDestination(gate);
 					}
 				} else {
 					gate.close();
