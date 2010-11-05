@@ -65,9 +65,7 @@ public class Portal {
 	}
 	
 	public Location getExit() {
-		Blox exit = getBlockAt(1, -3).makeRelative(modZ, 0, modX);
-		exit.setType(20);
-		return new Location(exit.getX(), exit.getY(), exit.getZ(), rotX, 0);
+		return getLocAt(1.5, -3.0);
 	}
 	
 	public void setName(String name) {
@@ -182,6 +180,10 @@ public class Portal {
 	
 	private Blox getBlockAt(int left, int depth) {
 		return topLeft.makeRelative(-left * modX, depth, -left * modZ);
+	}
+	
+	private Location getLocAt(double left, double depth) {
+		return topLeft.makeRelativeLoc(-left * (double)modX, depth, -left * (double)modZ, rotX, 0);
 	}
 	
 	private void register() {

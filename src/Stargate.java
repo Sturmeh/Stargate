@@ -41,7 +41,7 @@ public class Stargate extends SuperPlugin {
 					Portal destination = portal.getDestination();
 					
 					player.sendMessage(Colors.Blue + teleportMessage);
-					//player.teleportTo(destination.getExit());
+					player.teleportTo(destination.getExit());
 					
 					portal.close();
 					destination.close();

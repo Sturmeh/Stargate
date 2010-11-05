@@ -24,6 +24,10 @@ public class Blox {
 	public Blox makeRelative(int x, int y, int z) {
 		return new Blox(this.x + x, this.y + y, this.z + z);
 	}
+	
+	public Location makeRelativeLoc(double x, double y, double z, float rotX, float rotY) {
+		return new Location((double)this.x + x, (double)this.y + y, (double)this.z + z, rotX, rotY);
+	}
 
 	public void setType(int type) {
 		etc.getServer().setBlockAt(type, x, y, z);
