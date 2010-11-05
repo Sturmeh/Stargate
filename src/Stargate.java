@@ -59,22 +59,7 @@ public class Stargate extends SuperPlugin {
 			if (!player.canUseCommand("/stargate")) return true;
 			
 			if ((block.getType() == Portal.BUTTON) && (block.getStatus() == 0)) {
-				Portal destination = gate.getDestination();
-				
-				if (!gate.isOpen()) {
-					if ((destination == null) || (destination == gate)) {
-						player.sendMessage(Colors.Red + unselectMessage);
-					} else if (destination.isOpen()) {
-						player.sendMessage(Colors.Red + collisinMessage);
-					} else {
-						gate.open(player);
-						destination.open(player);
-						destination.setDestination(gate);
-					}
-				} else {
-					gate.close();
-					if (destination != null) destination.close();
-				}
+				onButtonPressed(player, gate);
 				
 				return true;
 			} else if (block.getStatus() == 3) {
@@ -97,16 +82,37 @@ public class Stargate extends SuperPlugin {
 		}
 		
 		public boolean onBlockCreate(Player player, Block blockPlaced, Block blockClicked, int itemInHand) {
-			if (blockClicked.getType() == Portal.SIGN) {
+			if ((blockClicked.getType() == Portal.SIGN) || (blockClicked.getType() == Portal.BUTTON)) {
 				Portal portal = Portal.getByBlock(blockClicked);
 				
 				if (portal != null) {
-					portal.cycleDestination();
+					if (blockClicked.getType() == Portal.SIGN) portal.cycleDestination();
+					if (blockClicked.getType() == Portal.BUTTON) onButtonPressed(player, portal);
+					
 					return true;
 				}
 			}
 			
 			return false;
+		}
+
+		private void onButtonPressed(Player player, Portal gate) {
+			Portal destination = gate.getDestination();
+			
+			if (!gate.isOpen()) {
+				if ((destination == null) || (destination == gate)) {
+					player.sendMessage(Colors.Red + unselectMessage);
+				} else if (destination.isOpen()) {
+					player.sendMessage(Colors.Red + collisinMessage);
+				} else {
+					gate.open(player);
+					destination.open(player);
+					destination.setDestination(gate);
+				}
+			} else {
+				gate.close();
+				if (destination != null) destination.close();
+			}
 		}
 	}
 }
