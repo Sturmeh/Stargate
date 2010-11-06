@@ -1,3 +1,4 @@
+import java.util.logging.Level;
 import java.util.logging.Logger;
 /**
  * SuperPlugin.java - Plug-in template for hey0's minecraft mod.
@@ -79,7 +80,16 @@ public abstract class SuperPlugin extends Plugin {
 	 * @param String - Message to record
 	 */
 	public static void log(String message) {
-		log.info(message);
+		log(Level.INFO, message);
+	}
+
+	/**
+	 * Logs a message for debugging or for general information
+	 * @param level - The level of this message
+	 * @param String - Message to record
+	 */
+	public static void log(Level level, String message) {
+		log.log(level, message);
 	}
 	
 	/**

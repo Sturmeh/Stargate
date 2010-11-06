@@ -1,4 +1,3 @@
-import java.util.Random;
 /**
  * Stargate.java - Plug-in for hey0's minecraft mod.
  * @author Shaun (sturmeh)
@@ -6,7 +5,7 @@ import java.util.Random;
  */
 public class Stargate extends SuperPlugin {
 	public final Listener listener = new Listener();
-	Random generator = new Random(etc.getServer().getTime());
+	private static String gateSaveLocation = "stargates.txt";
 	private static String teleportMessage = "You feel weightless as the portal carries you to new land...";
 	private static String registerMessage = "You feel a slight tremble in the ground around the portal...";
 	private static String destroyzMessage = "You feel a great shift in energy, as it leaves the portal...";
@@ -24,12 +23,22 @@ public class Stargate extends SuperPlugin {
 	}
 	
 	public void reloadExtra() {
+		gateSaveLocation = config.getString("portal-save-location", gateSaveLocation);
 		teleportMessage = config.getString("teleport-message", teleportMessage);
 		registerMessage = config.getString("portal-create-message", registerMessage);
 		destroyzMessage = config.getString("portal-destroy-message", destroyzMessage);
 		noownersMessage = config.getString("not-owner-message", noownersMessage);
 		unselectMessage = config.getString("not-selected-message", unselectMessage);
 		collisinMessage = config.getString("other-side-blocked-message", collisinMessage);
+		Portal.loadAllGates();
+	}
+	
+	public void enableExtra() {
+		reloadExtra();
+	}
+	
+	public static String getSaveLocation() {
+		return gateSaveLocation;
 	}
 
 	private class Listener extends PluginListener {

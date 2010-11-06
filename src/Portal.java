@@ -1,5 +1,10 @@
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Scanner;
+import java.util.logging.Level;
 
 /**
  * Portal.java - Plug-in for hey0's minecraft mod.
@@ -27,6 +32,7 @@ public class Portal {
 	private String destination;
 	private Blox button;
 	private Player player;
+	private Blox[] frame;
 	
 	private Portal (Blox topLeft, int modX, int modZ, float rotX, SignPost id, Blox button) {
 		this.topLeft = topLeft;
@@ -40,6 +46,20 @@ public class Portal {
 		this.setName(id.getText(0));
 		this.register();
 		cycleDestination();
+	}
+	
+	public Portal (String name, Blox topLeft, int modX, int modZ, float rotX, SignPost id, Blox button, Blox[] frame) {
+		this.topLeft = topLeft;
+		this.modX = modX;
+		this.modZ = modZ;
+		this.rotX = rotX;
+		this.id = id;
+		this.destination = "";
+		this.button = button;
+		this.name = name;
+		this.frame = frame;
+		
+		this.register();
 	}
 
 	public boolean isOpen() {
@@ -69,7 +89,7 @@ public class Portal {
 	}
 	
 	public void setName(String name) {
-		this.name = name.toLowerCase().trim();
+		this.name = name.toLowerCase().replaceAll("[^\\w\\s", "").trim();
 		
 		drawSign();
 	}
@@ -134,18 +154,20 @@ public class Portal {
 	}
 	
 	public Blox[] getFrame() {
-		Blox[] frame = {
-			getBlockAt(1, 0),
-			getBlockAt(2, 0),
-			getBlockAt(0, -1),
-			getBlockAt(3, -1),
-			getBlockAt(0, -2),
-			getBlockAt(3, -2),
-			getBlockAt(0, -3),
-			getBlockAt(3, -3),
-			getBlockAt(1, -4),
-			getBlockAt(2, -4)
-		};
+		if (frame == null) {
+			frame = new Blox[] {
+				getBlockAt(1, 0),
+				getBlockAt(2, 0),
+				getBlockAt(0, -1),
+				getBlockAt(3, -1),
+				getBlockAt(0, -2),
+				getBlockAt(3, -2),
+				getBlockAt(0, -3),
+				getBlockAt(3, -3),
+				getBlockAt(1, -4),
+				getBlockAt(2, -4)
+			};
+		}
 		
 		return frame;
 	}
@@ -184,6 +206,9 @@ public class Portal {
 		id.setText(1, "");
 		id.setText(2, "");
 		id.setText(3, "");
+		id.update();
+		
+		saveAllGates();
 	}
 	
 	private Blox getBlockAt(int left, int depth) {
@@ -216,6 +241,8 @@ public class Portal {
 
 		Blox parent = new Blox(idParent.getX(), idParent.getY(), idParent.getZ());
 		Blox topleft = null;
+		
+		if (id.getText(0).length() > 11) return null;
 
 		int modX = 0;
 		int modZ = 0;
@@ -263,6 +290,9 @@ public class Portal {
 		button.setType(BUTTON);
 
 		Portal portal = new Portal(topleft, modX, modZ, rotX, id, button);
+		
+		saveAllGates();
+		
 		return portal;
 	}
 	
@@ -288,5 +318,95 @@ public class Portal {
 	
 	public static Portal getByBlock(Blox block) {
 		return lookupBlocks.get(block.toString());
+	}
+	
+	public static void saveAllGates() {
+		String loc = Stargate.getSaveLocation();
+        
+        try {
+            BufferedWriter bw = new BufferedWriter(new FileWriter(loc, false));
+            
+            for (String name : allPortals) {
+            	Portal portal = Portal.getByName(name);
+                StringBuilder builder = new StringBuilder();
+            	Blox sign = new Blox(portal.id.getBlock());
+            	Blox button = portal.button;
+            	Blox[] frame = portal.getFrame();
+            	int frameCount = 0;
+
+	            builder.append(portal.name);
+	            builder.append(':');
+	            builder.append(sign.toString());
+	            builder.append(':');
+	            builder.append(button.toString());
+	            builder.append(':');
+	            builder.append(portal.modX);
+	            builder.append(':');
+	            builder.append(portal.modZ);
+	            builder.append(':');
+	            builder.append(portal.rotX);
+	            builder.append(':');
+	            builder.append(portal.topLeft.toString());
+	            builder.append(':');
+	            
+	            for (Blox block : frame) {
+	            	if (frameCount++ > 0) builder.append(";");
+	            	builder.append(block.toString());
+	            }
+	            
+	            bw.append(builder.toString());
+	            bw.newLine();
+            }
+            
+            bw.close();
+        } catch (Exception e) {
+            Stargate.log(Level.SEVERE, "Exception while writing minegates to " + loc + ": " + e);
+        }
+	}
+	
+	public static void loadAllGates() {
+		String location = Stargate.getSaveLocation();
+		
+		lookupBlocks.clear();
+		lookupNames.clear();
+		lookupEntrances.clear();
+		allPortals.clear();
+		
+        if (new File(location).exists()) {
+            try {
+                Scanner scanner = new Scanner(new File(location));
+                while (scanner.hasNextLine()) {
+                    String line = scanner.nextLine().trim();
+                    if (line.startsWith("#") || line.equals("")) {
+                        continue;
+                    }
+                    String[] split = line.split(":");
+                    if (split.length < 3) {
+                        continue;
+                    }
+                    String name = split[0];
+                    SignPost sign = new SignPost(new Blox(split[1]));
+                    Blox button = new Blox(split[2]);
+                    int modX = Integer.parseInt(split[3]);
+                    int modZ = Integer.parseInt(split[4]);
+                    ArrayList<Blox> frame = new ArrayList<Blox>();
+                    float rotX = Float.parseFloat(split[5]);
+                    Blox topLeft = new Blox(split[6]);
+                    String[] frameSplit = split[7].split(";");
+                    
+                    for (String pos : frameSplit) {
+                    	frame.add(new Blox(pos));
+                    }
+                    
+                    Blox[] frameBlox = new Blox[0];
+                    frameBlox = frame.toArray(frameBlox);
+                    
+                    new Portal(name, topLeft, modX, modZ, rotX, sign, button, frameBlox);
+                }
+                scanner.close();
+            } catch (Exception e) {
+                Stargate.log(Level.SEVERE, "Exception while reading " + location + ": " + e);
+            }
+        }
 	}
 }

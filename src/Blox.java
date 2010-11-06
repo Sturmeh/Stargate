@@ -21,6 +21,13 @@ public class Blox {
 		this.z = (int)location.z;
 	}
 	
+	public Blox (String string) {
+		String[] split = string.split(",");
+		this.x = Integer.parseInt(split[0]);
+		this.y = Integer.parseInt(split[1]);
+		this.z = Integer.parseInt(split[2]);
+	}
+	
 	public Blox makeRelative(int x, int y, int z) {
 		return new Blox(this.x + x, this.y + y, this.z + z);
 	}
@@ -44,6 +51,10 @@ public class Blox {
 	public int getData() {
 		return etc.getServer().getBlockData(x, y, z);
 	}
+
+	public Block getBlock() {
+		return etc.getServer().getBlockAt(x, y, z);
+	}
 	
 	public int getX() {
 		return x;
@@ -58,7 +69,13 @@ public class Blox {
 	}
 	
 	public String toString() {
-		return x+", "+y+", "+z;
+		StringBuilder builder = new StringBuilder();
+		builder.append(x);
+		builder.append(',');
+		builder.append(y);
+		builder.append(',');
+		builder.append(z);
+		return builder.toString();
 	}
 	
 	@Override

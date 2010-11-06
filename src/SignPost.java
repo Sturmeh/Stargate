@@ -6,11 +6,14 @@ public class SignPost {
 	public SignPost(Sign sign) {
 		this.sign = sign;
 		block = etc.getServer().getBlockAt(sign.getX(), sign.getY(), sign.getZ());
-		
-		findParent();
+	}
+	
+	public SignPost(Blox block) {
+		this.block = block.getBlock();
 	}
 	
 	public Block getParent() {
+		if (parent == null) findParent();
 		return parent;
 	}
 	
@@ -19,14 +22,17 @@ public class SignPost {
 	}
 	
 	public String getText(int index) {
+		if (sign == null) findSign();
 		return sign.getText(index);
 	}
 	
 	public void setText(int index, String value) {
+		if (sign == null) findSign();
 		sign.setText(index, value);
 	}
 	
 	public String getIdText() {
+		if (sign == null) findSign();
 		StringBuilder result = new StringBuilder();
 
 		result.append(getText(0));
@@ -64,6 +70,14 @@ public class SignPost {
 		}
 		
 		parent = etc.getServer().getBlockAt(sign.getX() + offsetX, sign.getY() + offsetY, sign.getZ() + offsetZ);		
+	}
+	
+	private void findSign() {
+		try {
+			sign = (Sign)etc.getServer().getComplexBlock(block.getX(), block.getY(), block.getZ());
+		} finally {
+			
+		}
 	}
 	
 	public static SignPost getFromBlock(Block block) {
