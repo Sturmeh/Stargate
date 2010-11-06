@@ -89,7 +89,7 @@ public class Portal {
 	}
 	
 	public void setName(String name) {
-		this.name = name.toLowerCase().replaceAll("[^\\w\\s", "").trim();
+		this.name = name.toLowerCase().replaceAll("[^\\w\\s]", "").trim();
 		
 		drawSign();
 	}
