@@ -95,8 +95,11 @@ public class Stargate extends SuperPlugin {
 				Portal portal = Portal.getByBlock(blockClicked);
 				
 				if (portal != null) {
-					if (blockClicked.getType() == Portal.SIGN) portal.cycleDestination();
-					if (blockClicked.getType() == Portal.BUTTON) onButtonPressed(player, portal);
+					if (blockClicked.getType() == Portal.SIGN) {
+						if (!portal.isOpen()) portal.cycleDestination();
+					} else if (blockClicked.getType() == Portal.BUTTON) {
+						onButtonPressed(player, portal);
+					}
 					
 					return true;
 				}

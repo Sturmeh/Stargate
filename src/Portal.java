@@ -89,7 +89,7 @@ public class Portal {
 	}
 	
 	public void setName(String name) {
-		this.name = name.toLowerCase().replaceAll("[^\\w\\s]", "").trim();
+		this.name = filterName(name);
 		
 		drawSign();
 	}
@@ -241,8 +241,9 @@ public class Portal {
 
 		Blox parent = new Blox(idParent.getX(), idParent.getY(), idParent.getZ());
 		Blox topleft = null;
+		String name = filterName(id.getText(0));
 		
-		if (id.getText(0).length() > 11) return null;
+		if ((name.length() > 11) || (getByName(name) != null)) return null;
 
 		int modX = 0;
 		int modZ = 0;
@@ -292,6 +293,10 @@ public class Portal {
 		Portal portal = new Portal(topleft, modX, modZ, rotX, id, button);
 		
 		saveAllGates();
+		
+		for (String portalName: allPortals) {
+			getByName(portalName).drawSign();
+		}
 		
 		return portal;
 	}
@@ -408,5 +413,9 @@ public class Portal {
                 Stargate.log(Level.SEVERE, "Exception while reading " + location + ": " + e);
             }
         }
+	}
+	
+	public static String filterName(String input) {
+		return input.replaceAll("[^\\w\\s]", "").toLowerCase().trim();
 	}
 }
