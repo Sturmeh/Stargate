@@ -4,11 +4,11 @@ Installation:
  - If your server is already up, type "enableplugin Stargate" in your console (No restart required!)
 
 Building a gate:
-   OO
-  O  O - These are Obsidian blocks. You need 8.
-  O  O - Place a sign on either of these two blocks of Obsidian
-  O  O
-   OO
+    OO 
+   O  O - These are Obsidian blocks. You need 8.
+   O  O - Place a sign on either of these two blocks of Obsidian
+   O  O
+    OO
  - Type a name on the first line on the sign, it must be less than 12 characters long.
 
 Using a gate:
