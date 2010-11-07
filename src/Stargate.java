@@ -65,13 +65,13 @@ public class Stargate extends SuperPlugin {
 			Portal gate = Portal.getByBlock(block);
 			
 			if (gate == null) return false;
-			if (!player.canUseCommand("/stargate")) return true;
 			
 			if ((block.getType() == Portal.BUTTON) && (block.getStatus() == 0)) {
 				onButtonPressed(player, gate);
 				
 				return true;
 			} else if (block.getStatus() == 3) {
+				if (!player.canUseCommand("/stargate")) return true;
 				gate.unregister();
 				player.sendMessage(Colors.Red + destroyzMessage);
 			}
