@@ -49,13 +49,15 @@ public class Stargate extends SuperPlugin {
 				if (portal.isOpenFor().getName() == player.getName()) {
 					Portal destination = portal.getDestination();
 					
-					player.sendMessage(Colors.Blue + teleportMessage);
+					if (!teleportMessage.isEmpty())
+						player.sendMessage(Colors.Blue + teleportMessage);
 					player.teleportTo(destination.getExit());
 					
 					portal.close();
 					destination.close();
 				} else {
-					player.sendMessage(Colors.Red + noownersMessage);
+					if (!noownersMessage.isEmpty())
+						player.sendMessage(Colors.Red + noownersMessage);
 				}
 			}
 		}
@@ -73,7 +75,8 @@ public class Stargate extends SuperPlugin {
 			} else if (block.getStatus() == 3) {
 				if (!player.canUseCommand("/stargate")) return true;
 				gate.unregister();
-				player.sendMessage(Colors.Red + destroyzMessage);
+				if (!destroyzMessage.isEmpty())
+					player.sendMessage(Colors.Red + destroyzMessage);
 			}
 			
 			return false;
@@ -84,7 +87,7 @@ public class Stargate extends SuperPlugin {
 			SignPost sign = new SignPost((Sign)signBlock);
 			Portal portal = Portal.createPortal(sign);
 
-			if (portal != null)
+			if (portal != null && !registerMessage.isEmpty())
 				player.sendMessage(Colors.Green + registerMessage);
 			
 			return false;
@@ -113,9 +116,11 @@ public class Stargate extends SuperPlugin {
 			
 			if (!gate.isOpen()) {
 				if ((destination == null) || (destination == gate)) {
-					player.sendMessage(Colors.Red + unselectMessage);
+					if (!unselectMessage.isEmpty())
+						player.sendMessage(Colors.Red + unselectMessage);
 				} else if (destination.isOpen()) {
-					player.sendMessage(Colors.Red + collisinMessage);
+					if (!collisinMessage.isEmpty())
+						player.sendMessage(Colors.Red + collisinMessage);
 				} else {
 					gate.open(player);
 					destination.open(player);
