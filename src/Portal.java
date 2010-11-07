@@ -33,6 +33,7 @@ public class Portal {
 	private Blox button;
 	private Player player;
 	private Blox[] frame;
+	private boolean verified;
 	
 	private Portal (Blox topLeft, int modX, int modZ, float rotX, SignPost id, Blox button) {
 		this.topLeft = topLeft;
@@ -42,6 +43,7 @@ public class Portal {
 		this.id = id;
 		this.destination = "";
 		this.button = button;
+		this.verified = true;
 
 		this.setName(id.getText(0));
 		this.register();
@@ -58,6 +60,7 @@ public class Portal {
 		this.button = button;
 		this.name = name;
 		this.frame = frame;
+		this.verified = false;
 		
 		this.register();
 	}
@@ -112,6 +115,11 @@ public class Portal {
 	
 	public String getDestinationName() {
 		return destination;
+	}
+	
+	public boolean isVerified() {
+		verified = verified || getBlockAt(1, 0).getType() == OBSIDIAN;
+		return verified;
 	}
 	
 	public void cycleDestination() {
@@ -211,12 +219,12 @@ public class Portal {
 		saveAllGates();
 	}
 	
-	private Blox getBlockAt(int left, int depth) {
-		return topLeft.makeRelative(-left * modX, depth, -left * modZ);
+	private Blox getBlockAt(int right, int depth) {
+		return topLeft.makeRelative(-right * modX, depth, -right * modZ);
 	}
 	
-	private Location getLocAt(double left, double depth) {
-		return topLeft.makeRelativeLoc(-left * (double)modX, depth, -left * (double)modZ, rotX, 0);
+	private Location getLocAt(double right, double depth) {
+		return topLeft.makeRelativeLoc(-right * (double)modX, right, -right * (double)modZ, rotX, 0);
 	}
 	
 	private void register() {
@@ -295,7 +303,8 @@ public class Portal {
 		saveAllGates();
 		
 		for (String portalName: allPortals) {
-			getByName(portalName).drawSign();
+			Portal gate = getByName(portalName);
+			if (gate.isVerified()) gate.drawSign();
 		}
 		
 		return portal;
