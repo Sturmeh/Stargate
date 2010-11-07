@@ -15,3 +15,7 @@ Using a gate:
  - Right click the sign to choose a destination
  - Left click the button to open up a portal
  - Step through
+ 
+Configuration:
+ - You can edit all values in stargate.txt to your choosing, mostly the RP text on doing actions involving a gate.
+ - Destroying gates is restricted to users with the /stargate command permission (Though, note, there is no command /stargate)
