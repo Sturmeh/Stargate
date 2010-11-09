@@ -69,11 +69,11 @@ public class Stargate extends SuperPlugin {
 			if (gate == null) return false;
 			
 			if ((block.getType() == Portal.BUTTON) && (block.getStatus() == 0)) {
-				onButtonPressed(player, gate);
+				if (player.canUseCommand("/stargateuse")) onButtonPressed(player, gate);
 				
 				return true;
 			} else if (block.getStatus() == 3) {
-				if (!player.canUseCommand("/stargate")) return true;
+				if (!player.canUseCommand("/stargatedestroy")) return true;
 				gate.unregister();
 				if (!destroyzMessage.isEmpty())
 					player.sendMessage(Colors.Red + destroyzMessage);
@@ -85,8 +85,11 @@ public class Stargate extends SuperPlugin {
 		public boolean onComplexBlockChange(Player player, ComplexBlock signBlock) {
 			if (!(signBlock instanceof Sign)) return false;
 			SignPost sign = new SignPost((Sign)signBlock);
+			
+			if (!player.canUseCommand("/stargatecreate")) return true;
+			
 			Portal portal = Portal.createPortal(sign);
-
+			
 			if (portal != null && !registerMessage.isEmpty())
 				player.sendMessage(Colors.Green + registerMessage);
 			
@@ -96,6 +99,8 @@ public class Stargate extends SuperPlugin {
 		public boolean onBlockCreate(Player player, Block blockPlaced, Block blockClicked, int itemInHand) {
 			if ((blockClicked.getType() == Portal.SIGN) || (blockClicked.getType() == Portal.BUTTON)) {
 				Portal portal = Portal.getByBlock(blockClicked);
+				
+				if (!player.canUseCommand("/stargateuse")) return true;
 				
 				if (portal != null) {
 					if (blockClicked.getType() == Portal.SIGN) {
