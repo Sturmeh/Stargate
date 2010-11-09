@@ -210,11 +210,13 @@ public class Portal {
 		allPortals.remove(getName());
 		close();
 		
-		id.setText(0, getName());
-		id.setText(1, "");
-		id.setText(2, "");
-		id.setText(3, "");
-		id.update();
+		if (id.getBlock().getType() == SIGN) {
+			id.setText(0, getName());
+			id.setText(1, "");
+			id.setText(2, "");
+			id.setText(3, "");
+			id.update();
+		}
 		
 		saveAllGates();
 	}

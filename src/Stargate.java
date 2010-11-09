@@ -125,6 +125,7 @@ public class Stargate extends SuperPlugin {
 					gate.open(player);
 					destination.open(player);
 					destination.setDestination(gate);
+					if (destination.isVerified()) destination.drawSign();
 				}
 			} else {
 				gate.close();
