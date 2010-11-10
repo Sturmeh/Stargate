@@ -123,7 +123,7 @@ public class Stargate extends SuperPlugin {
 				if ((destination == null) || (destination == gate)) {
 					if (!unselectMessage.isEmpty())
 						player.sendMessage(Colors.Red + unselectMessage);
-				} else if (destination.isOpen()) {
+				} else if ((destination.isOpen() || destination.isFixed())) {
 					if (!collisinMessage.isEmpty())
 						player.sendMessage(Colors.Red + collisinMessage);
 				} else {
