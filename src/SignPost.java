@@ -23,16 +23,19 @@ public class SignPost {
 	
 	public String getText(int index) {
 		if (sign == null) findSign();
+		if (sign == null) return "";
 		return sign.getText(index);
 	}
 	
 	public void setText(int index, String value) {
 		if (sign == null) findSign();
+		if (sign == null) return;
 		sign.setText(index, value);
 	}
 	
 	public String getIdText() {
 		if (sign == null) findSign();
+		if (sign == null) return "";
 		StringBuilder result = new StringBuilder();
 
 		result.append(getText(0));
@@ -47,6 +50,8 @@ public class SignPost {
 	}
 	
 	public void update() {
+		if (sign == null) findSign();
+		if (sign == null) return;
 		sign.update();
 	}
 	

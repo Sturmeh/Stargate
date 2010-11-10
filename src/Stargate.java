@@ -46,15 +46,15 @@ public class Stargate extends SuperPlugin {
 			Portal portal = Portal.getByEntrance(to);
 			
 			if ((portal != null) && (portal.isOpen())) {
-				if (portal.isOpenFor().getName() == player.getName()) {
+				if (portal.isOpenFor(player)) {
 					Portal destination = portal.getDestination();
 					
 					if (!teleportMessage.isEmpty())
 						player.sendMessage(Colors.Blue + teleportMessage);
 					player.teleportTo(destination.getExit());
 					
-					portal.close();
-					destination.close();
+					if (!portal.isFixed()) portal.close();
+					if ((!destination.isFixed()) && (destination.getDestinationName() == portal.getName())) destination.close();
 				} else {
 					if (!noownersMessage.isEmpty())
 						player.sendMessage(Colors.Red + noownersMessage);
@@ -104,7 +104,7 @@ public class Stargate extends SuperPlugin {
 				
 				if (portal != null) {
 					if (blockClicked.getType() == Portal.SIGN) {
-						if (!portal.isOpen()) portal.cycleDestination();
+						if ((!portal.isOpen()) && (!portal.isFixed())) portal.cycleDestination();
 					} else if (blockClicked.getType() == Portal.BUTTON) {
 						onButtonPressed(player, portal);
 					}

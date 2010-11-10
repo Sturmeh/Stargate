@@ -34,6 +34,7 @@ public class Portal {
 	private Player player;
 	private Blox[] frame;
 	private boolean verified;
+	private boolean fixed;
 	
 	private Portal (Blox topLeft, int modX, int modZ, float rotX, SignPost id, Blox button) {
 		this.topLeft = topLeft;
@@ -44,29 +45,51 @@ public class Portal {
 		this.destination = "";
 		this.button = button;
 		this.verified = true;
+		this.fixed = false;
 
 		this.setName(id.getText(0));
 		this.register();
 		cycleDestination();
 	}
 	
-	public Portal (String name, Blox topLeft, int modX, int modZ, float rotX, SignPost id, Blox button, Blox[] frame) {
+	private Portal (Blox topLeft, int modX, int modZ, float rotX, SignPost id, String destName) {
 		this.topLeft = topLeft;
 		this.modX = modX;
 		this.modZ = modZ;
 		this.rotX = rotX;
 		this.id = id;
-		this.destination = "";
+		this.destination = destName;
+		this.verified = true;
+		this.fixed = true;
+		this.button = null;
+
+		this.setName(id.getText(0));
+		this.register();
+		this.drawSign();
+	}
+	
+	public Portal (String name, Blox topLeft, int modX, int modZ, float rotX, SignPost id, Blox button, String dest, Blox[] frame) {
+		this.topLeft = topLeft;
+		this.modX = modX;
+		this.modZ = modZ;
+		this.rotX = rotX;
+		this.id = id;
+		this.destination = dest;
 		this.button = button;
 		this.name = name;
 		this.frame = frame;
 		this.verified = false;
+		this.fixed = dest.length() > 0;
 		
 		this.register();
 	}
 
 	public boolean isOpen() {
 		return getBlockAt(1, -3).getType() == PORTAL;
+	}
+
+	public boolean open() {
+		return open(null);
 	}
 
 	public boolean open(Player openFor) {
@@ -83,8 +106,13 @@ public class Portal {
 		player = null;
 	}
 	
-	public Player isOpenFor() {
-		return player;
+	public boolean isOpenFor(Player player) {
+		if ((isFixed()) || (this.player == null)) return true;
+		return (player != null) && (player.getName() == this.player.getName());
+	}
+	
+	public boolean isFixed() {
+		return fixed;
 	}
 	
 	public Location getExit() {
@@ -135,7 +163,9 @@ public class Portal {
 		int max = allPortals.size() - 1;
 		int done = 0;
 
-		if (max > 0) {
+		if (isFixed()) {
+			id.setText(++done, "To: " + destination);
+		} else if (max > 0) {
 			int index = allPortals.indexOf(destination);
 			
 			if ((index == max) && (max > 1) && (++done <= 3)) id.setText(done, allPortals.get(index - 2));
@@ -202,7 +232,7 @@ public class Portal {
 			lookupBlocks.remove(frame.toString());
 		// Include the sign and button
 		lookupBlocks.remove(new Blox(id.getBlock()).toString());
-		lookupBlocks.remove(button.toString());
+		if (button != null) lookupBlocks.remove(button.toString());
 		
 		for (Blox entrance : getEntrances())
 			lookupEntrances.remove(entrance.toString());
@@ -236,7 +266,7 @@ public class Portal {
 			lookupBlocks.put(frame.toString(), this);
 		// Include the sign and button
 		lookupBlocks.put(new Blox(id.getBlock()).toString(), this);
-		lookupBlocks.put(button.toString(), this);
+		if (button != null) lookupBlocks.put(button.toString(), this);
 		
 		for (Blox entrance : getEntrances())
 			lookupEntrances.put(entrance.toString(), this);
@@ -252,6 +282,7 @@ public class Portal {
 		Blox parent = new Blox(idParent.getX(), idParent.getY(), idParent.getZ());
 		Blox topleft = null;
 		String name = filterName(id.getText(0));
+		String destName = filterName(id.getText(1));
 		
 		if ((name.length() > 11) || (getByName(name) != null)) return null;
 
@@ -297,10 +328,27 @@ public class Portal {
 		else
 			topleft = entry.makeRelative(modX, 3, modZ);
 		
-		Blox button = parent.makeRelative(modX * modN * 3 + modZ, 0, modZ * modN * 3 + -modX);
-		button.setType(BUTTON);
-
-		Portal portal = new Portal(topleft, modX, modZ, rotX, id, button);
+		Portal portal = null;
+		
+		if (destName.length() > 0) {
+			portal = new Portal(topleft, modX, modZ, rotX, id, destName);
+			
+			Portal destination = getByName(destName);
+			if (destination != null) portal.open();
+		} else {
+			Blox button = parent.makeRelative(modX * modN * 3 + modZ, 0, modZ * modN * 3 + -modX);
+			button.setType(BUTTON);
+	
+			portal = new Portal(topleft, modX, modZ, rotX, id, button);
+		}
+		
+		for (String originName : allPortals) {
+			Portal origin = Portal.getByName(originName);
+			
+			if ((origin != null) && (origin.isFixed()) && (origin.getDestinationName().equals(portal.getName())) && (origin.isVerified())) {
+				origin.open();
+			}
+		}
 		
 		saveAllGates();
 		
@@ -354,7 +402,7 @@ public class Portal {
 	            builder.append(':');
 	            builder.append(sign.toString());
 	            builder.append(':');
-	            builder.append(button.toString());
+	            builder.append((button != null) ? button.toString() : "");
 	            builder.append(':');
 	            builder.append(portal.modX);
 	            builder.append(':');
@@ -370,13 +418,16 @@ public class Portal {
 	            	builder.append(block.toString());
 	            }
 	            
+	            builder.append(':');
+	            builder.append(portal.isFixed() ? portal.getDestinationName() : "");
+	            
 	            bw.append(builder.toString());
 	            bw.newLine();
             }
             
             bw.close();
         } catch (Exception e) {
-            Stargate.log(Level.SEVERE, "Exception while writing minegates to " + loc + ": " + e);
+            Stargate.log(Level.SEVERE, "Exception while writing stargates to " + loc + ": " + e);
         }
 	}
 	
@@ -402,7 +453,7 @@ public class Portal {
                     }
                     String name = split[0];
                     SignPost sign = new SignPost(new Blox(split[1]));
-                    Blox button = new Blox(split[2]);
+                    Blox button = (split[2].length() > 0) ? new Blox(split[2]) : null;
                     int modX = Integer.parseInt(split[3]);
                     int modZ = Integer.parseInt(split[4]);
                     ArrayList<Blox> frame = new ArrayList<Blox>();
@@ -417,11 +468,29 @@ public class Portal {
                     Blox[] frameBlox = new Blox[0];
                     frameBlox = frame.toArray(frameBlox);
                     
-                    new Portal(name, topLeft, modX, modZ, rotX, sign, button, frameBlox);
+                    String fixed = (split.length > 8) ? split[8] : "";
+                    
+                    Portal portal = new Portal(name, topLeft, modX, modZ, rotX, sign, button, fixed, frameBlox);
+                    
+                    if (fixed.length() > 0) {
+                    	if (portal.isVerified()) {
+                    		Portal destination = getByName(fixed);
+                    		
+                    		if (destination != null) portal.open();
+                    	}
+                    }
+        			
+        			for (String originName : allPortals) {
+        				Portal origin = Portal.getByName(originName);
+
+        				if ((origin != null) && (origin.isFixed()) && (origin.getDestinationName().equals(portal.getName())) && (origin.isVerified())) {
+        					origin.open();
+        				}
+        			}
                 }
                 scanner.close();
             } catch (Exception e) {
-                Stargate.log(Level.SEVERE, "Exception while reading " + location + ": " + e);
+                Stargate.log(Level.SEVERE, "Exception while reading stargates from " + location + ": " + e);
             }
         }
 	}
