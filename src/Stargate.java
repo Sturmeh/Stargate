@@ -108,6 +108,7 @@ public class Stargate extends SuperPlugin {
 					portal.close();
 					portal.unregister();
 					update = false;
+					log("Deleting sign at " + portal.toString());
 				}
 			}
 			

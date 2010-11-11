@@ -289,6 +289,11 @@ public class Portal {
 		allPortals.add(getName());
 	}
 
+	@Override
+	public String toString() {
+		return String.format("Portal [id=%s, name=%s]", id, name);
+	}
+
 	public static Portal createPortal(SignPost id) {
 		Block idParent = id.getParent();
 
