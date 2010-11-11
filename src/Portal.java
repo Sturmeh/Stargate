@@ -255,12 +255,8 @@ public class Portal {
 		return topLeft.makeRelative(-right * modX, depth, -right * modZ);
 	}
 	
-	private Location getLocAt(double right, double depth) {
-		return topLeft.makeRelativeLoc( 0.5 + -right * modX, depth, 0.5 + -right * modZ, rotX, 0);
-	}
-	
 	private Location getLocAt(double right, double depth, double distance) {
-		return topLeft.makeRelativeLoc( 0.5 + -right * modX + -distance * modZ, depth, 0.5 + -right * modZ + -distance * modX, rotX, 0 );
+		return topLeft.makeRelativeLoc(0.5 + -right * modX + distance * modZ, depth, 0.5 + -right * modZ + -distance * modX, rotX, 0); 
 	}
 	
 	private void register() {
