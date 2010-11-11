@@ -65,7 +65,7 @@ public class Portal {
 
 		this.setName(id.getText(0));
 		this.register();
-		this.drawSign();
+		this.drawSign(true);
 	}
 	
 	public Portal (String name, Blox topLeft, int modX, int modZ, float rotX, SignPost id, Blox button, String dest, Blox[] frame) {
@@ -122,7 +122,7 @@ public class Portal {
 	public void setName(String name) {
 		this.name = filterName(name);
 		
-		drawSign();
+		drawSign(true);
 	}
 	
 	public String getName() {
@@ -155,10 +155,10 @@ public class Portal {
 		if (++index >= allPortals.size()) index = 0;
 		destination = allPortals.get(index);
 		
-		drawSign();
+		drawSign(true);
 	}
 	
-	public void drawSign() {
+	public void drawSign(boolean update) {
 		id.setText(0, "--" + name + "--");
 		int max = allPortals.size() - 1;
 		int done = 0;
@@ -179,7 +179,7 @@ public class Portal {
 			id.setText(done, "");
 		}
 		
-		id.update();
+		if (update) id.update();
 	}
 	
 	public Blox[] getEntrances() {
@@ -354,7 +354,7 @@ public class Portal {
 		
 		for (String portalName: allPortals) {
 			Portal gate = getByName(portalName);
-			if (gate.isVerified()) gate.drawSign();
+			if (gate.isVerified()) gate.drawSign(true);
 		}
 		
 		return portal;
