@@ -263,6 +263,14 @@ public class Portal {
 			id.update();
 		}
 		
+		for (String originName : allPortals) {
+			Portal origin = Portal.getByName(originName);
+
+			if ((origin != null) && (origin.isFixed()) && (origin.getDestinationName().equals(getName())) && (origin.isVerified())) {
+				origin.close();
+			}
+		}
+		
 		saveAllGates();
 	}
 	
