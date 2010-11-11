@@ -116,7 +116,7 @@ public class Portal {
 	}
 	
 	public Location getExit() {
-		return getLocAt(1.5, -3.0);
+		return getLocAt(1.5, -3.0, 1.0);
 	}
 	
 	public void setName(String name) {
@@ -256,7 +256,11 @@ public class Portal {
 	}
 	
 	private Location getLocAt(double right, double depth) {
-		return topLeft.makeRelativeLoc(-right * (double)modX, depth, -right * (double)modZ, rotX, 0);
+		return topLeft.makeRelativeLoc( 0.5 + -right * modX, depth, 0.5 + -right * modZ, rotX, 0);
+	}
+	
+	private Location getLocAt(double right, double depth, double distance) {
+		return topLeft.makeRelativeLoc( 0.5 + -right * modX + -distance * modZ, depth, 0.5 + -right * modZ + -distance * modX, rotX, 0 );
 	}
 	
 	private void register() {
