@@ -20,6 +20,7 @@ public class Stargate extends SuperPlugin {
 		etc.getLoader().addListener(PluginLoader.Hook.BLOCK_CREATED, listener, this, PluginListener.Priority.MEDIUM);
 		etc.getLoader().addListener(PluginLoader.Hook.BLOCK_DESTROYED, listener, this, PluginListener.Priority.MEDIUM);
 		etc.getLoader().addListener(PluginLoader.Hook.COMPLEX_BLOCK_CHANGE, listener, this, PluginListener.Priority.MEDIUM);
+		etc.getLoader().addListener(PluginLoader.Hook.COMPLEX_BLOCK_SEND, listener, this, PluginListener.Priority.MEDIUM);
 	}
 	
 	public void reloadExtra() {
@@ -93,6 +94,14 @@ public class Stargate extends SuperPlugin {
 			if (portal != null && !registerMessage.isEmpty())
 				player.sendMessage(Colors.Green + registerMessage);
 			
+			return false;
+		}
+		
+		public boolean onSendComplexBlock(Player player, ComplexBlock signBlock) {
+			if (!(signBlock instanceof Sign)) return false;
+			Portal portal = Portal.getByBlock(etc.getServer().getBlockAt(signBlock.getX(), signBlock.getY(), signBlock.getZ()));
+			if (portal == null) return false;
+			portal.drawSign();
 			return false;
 		}
 		
