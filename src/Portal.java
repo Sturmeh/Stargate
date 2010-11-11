@@ -150,6 +150,21 @@ public class Portal {
 		return verified;
 	}
 	
+	public boolean wasVerified() {
+		return verified;
+	}
+	
+	public boolean checkIntegrity() {
+		boolean result = true;
+		Blox[] frame = getFrame();
+		
+		for (int i = 0; i < frame.length && result; i++) {
+			result = result && frame[i].getType() == OBSIDIAN;
+		}
+		
+		return result;
+	}
+	
 	public void cycleDestination() {
 		int index = allPortals.indexOf(destination);
 		if (++index >= allPortals.size()) index = 0;

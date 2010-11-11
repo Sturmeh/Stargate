@@ -101,8 +101,17 @@ public class Stargate extends SuperPlugin {
 			if (!(signBlock instanceof Sign)) return false;
 			Portal portal = Portal.getByBlock(etc.getServer().getBlockAt(signBlock.getX(), signBlock.getY(), signBlock.getZ()));
 			if (portal == null) return false;
+			boolean update = true;
 			
-			portal.drawSign(false);
+			if ((!portal.wasVerified()) && (portal.isVerified())) {
+				if (!portal.checkIntegrity()) {
+					portal.close();
+					portal.unregister();
+					update = false;
+				}
+			}
+			
+			if (update) portal.drawSign(false);
 			
 			return false;
 		}
