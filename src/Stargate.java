@@ -20,7 +20,7 @@ public class Stargate extends SuperPlugin {
 		etc.getLoader().addListener(PluginLoader.Hook.BLOCK_CREATED, listener, this, PluginListener.Priority.MEDIUM);
 		etc.getLoader().addListener(PluginLoader.Hook.BLOCK_DESTROYED, listener, this, PluginListener.Priority.MEDIUM);
 		etc.getLoader().addListener(PluginLoader.Hook.COMPLEX_BLOCK_CHANGE, listener, this, PluginListener.Priority.MEDIUM);
-		etc.getLoader().addListener(PluginLoader.Hook.COMPLEX_BLOCK_SEND, listener, this, PluginListener.Priority.MEDIUM);
+		//etc.getLoader().addListener(PluginLoader.Hook.COMPLEX_BLOCK_SEND, listener, this, PluginListener.Priority.MEDIUM);
 	}
 	
 	public void reloadExtra() {
@@ -96,7 +96,7 @@ public class Stargate extends SuperPlugin {
 			
 			return false;
 		}
-		
+		/*
 		public boolean onSendComplexBlock(Player player, ComplexBlock signBlock) {
 			if (!(signBlock instanceof Sign)) return false;
 			Portal portal = Portal.getByBlock(etc.getServer().getBlockAt(signBlock.getX(), signBlock.getY(), signBlock.getZ()));
@@ -104,7 +104,7 @@ public class Stargate extends SuperPlugin {
 			portal.drawSign();
 			return false;
 		}
-		
+		*/
 		public boolean onBlockCreate(Player player, Block blockPlaced, Block blockClicked, int itemInHand) {
 			if ((blockClicked.getType() == Portal.SIGN) || (blockClicked.getType() == Portal.BUTTON)) {
 				Portal portal = Portal.getByBlock(blockClicked);
