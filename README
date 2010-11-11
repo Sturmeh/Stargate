@@ -6,15 +6,21 @@ Installation:
 Building a gate:
     OO 
    O  O - These are Obsidian blocks. You need 10.
-   O  O - Place a sign on either of these two blocks of Obsidian
+   O  O - Place a sign on either of these two blocks of Obsidian.
    O  O
     OO
  - Type a name on the first line on the sign, it must be less than 12 characters long.
 
 Using a gate:
- - Right click the sign to choose a destination
- - Left click the button to open up a portal
- - Step through
+ - Right click the sign to choose a destination.
+ - Left click the button to open up a portal.
+ - Step through.
+ 
+Fixed gates:
+ - Fixed gates are like normal gates, but can only go to one destination and will always remain open.
+ - If you create two fixed gates that point to eachother, you will have a two-way portal.
+ - You can link gates to normal gates, or to other fixed gates which can link to another fixed gate etc. You can't link a normal gate to a fixed gate though.
+ - Creating a fixed gate is the same as a normal gate, but you must specify the destination on the second line. 
  
 Configuration:
  - You can edit all values in stargate.txt to your choosing, mostly the RP text on doing actions involving a gate.
