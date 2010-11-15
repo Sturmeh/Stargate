@@ -11,7 +11,7 @@ public class Stargate extends SuperPlugin {
 	private static String destroyzMessage = "You feel a great shift in energy, as it leaves the portal...";
 	private static String noownersMessage = "You feel a great power, yet feel a lack of belonging here...";
 	private static String unselectMessage = "You expect something to happen and seem puzzled, what now...";
-	private static String collisinMessage = "You anticipate a great surge, but it appears it's blocked...";
+	private static String collisinMessage = "You anticipate a great surge, but it appears it's blocked..."; 
 	
 	public Stargate() { super("stargate"); }
 
@@ -73,6 +73,8 @@ public class Stargate extends SuperPlugin {
 				if (player.canUseCommand("/stargateuse")) onButtonPressed(player, gate);
 				
 				return true;
+			} else if (block.getStatus() < 2) {
+				if (!player.canUseCommand("/stargatedestroy")) return true;
 			} else if (block.getStatus() == 3) {
 				if (!player.canUseCommand("/stargatedestroy")) return true;
 				gate.unregister();
@@ -108,7 +110,7 @@ public class Stargate extends SuperPlugin {
 					portal.close();
 					portal.unregister();
 					update = false;
-					log("Deleting sign at " + portal.toString());
+					log("Destroying stargate at " + portal.toString());
 				}
 			}
 			
@@ -125,7 +127,10 @@ public class Stargate extends SuperPlugin {
 				
 				if (portal != null) {
 					if (blockClicked.getType() == Portal.SIGN) {
-						if ((!portal.isOpen()) && (!portal.isFixed())) portal.cycleDestination();
+						if ((!portal.isOpen()) && (!portal.isFixed())) {
+							portal.cycleDestination();
+							
+						}
 					} else if (blockClicked.getType() == Portal.BUTTON) {
 						onButtonPressed(player, portal);
 					}

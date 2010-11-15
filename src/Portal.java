@@ -35,6 +35,8 @@ public class Portal {
 	private Blox[] frame;
 	private boolean verified;
 	private boolean fixed;
+	private ArrayList<String> destinations = new ArrayList<String>();
+	private String network;
 	
 	private Portal (Blox topLeft, int modX, int modZ, float rotX, SignPost id, Blox button) {
 		this.topLeft = topLeft;
@@ -46,10 +48,11 @@ public class Portal {
 		this.button = button;
 		this.verified = true;
 		this.fixed = false;
+		this.network = "central";
 
 		this.setName(id.getText(0));
 		this.register();
-		cycleDestination();
+		this.drawSign(true);
 	}
 	
 	private Portal (Blox topLeft, int modX, int modZ, float rotX, SignPost id, String destName) {
@@ -62,6 +65,7 @@ public class Portal {
 		this.verified = true;
 		this.fixed = true;
 		this.button = null;
+		this.network = "central";
 
 		this.setName(id.getText(0));
 		this.register();
@@ -80,6 +84,7 @@ public class Portal {
 		this.frame = frame;
 		this.verified = false;
 		this.fixed = dest.length() > 0;
+		this.network = "central";
 		
 		this.register();
 	}
@@ -104,6 +109,7 @@ public class Portal {
 	public void close() {
 		getBlockAt(1, -3).setType(AIR);
 		player = null;
+		deactivate();
 	}
 	
 	public boolean isOpenFor(Player player) {
@@ -165,29 +171,63 @@ public class Portal {
 		return result;
 	}
 	
+	public void activate() {
+		destinations.clear();
+		
+		for (String name : allPortals) {
+			Portal portal = getByName(name);
+			if ((portal.getNetwork().equals(network)) && (!name.equals(getName()))) {
+				destinations.add(name);
+			}
+		}
+	}
+	
+	public void deactivate() {
+		destinations.clear();
+		destination = "";
+	}
+	
+	public boolean isActive() {
+		return destinations.size() > 0;
+	}
+	
+	public String getNetwork() {
+		return network;
+	}
+	
 	public void cycleDestination() {
-		int index = allPortals.indexOf(destination);
-		if (++index >= allPortals.size()) index = 0;
-		destination = allPortals.get(index);
+		if (!isActive()) activate();
+		
+		if (destinations.size() > 0) {
+			int index = destinations.indexOf(destination);
+			if (++index >= destinations.size()) index = 0;
+			destination = destinations.get(index);
+		}
 		
 		drawSign(true);
 	}
 	
 	public void drawSign(boolean update) {
 		id.setText(0, "--" + name + "--");
-		int max = allPortals.size() - 1;
+		int max = destinations.size() - 1;
 		int done = 0;
-
-		if (isFixed()) {
-			id.setText(++done, "To: " + destination);
-		} else if (max > 0) {
-			int index = allPortals.indexOf(destination);
-			
-			if ((index == max) && (max > 1) && (++done <= 3)) id.setText(done, allPortals.get(index - 2));
-			if ((index > 0) && (++done <= 3)) id.setText(done, allPortals.get(index - 1));
-			if (++done <= 3) id.setText(done, " >" + destination + "< ");
-			if ((max >= index + 1) && (++done <= 3)) id.setText(done, allPortals.get(index + 1));
-			if ((max >= index + 2) && (++done <= 3)) id.setText(done, allPortals.get(index + 2));
+		
+		if (!isActive()) {
+			id.setText(++done, "Right click to");
+			id.setText(++done, "use the gate");
+			id.setText(++done, " (" + network + ") ");
+		} else {
+			if (isFixed()) {
+				id.setText(++done, "To: " + destination);
+			} else if (max > 0) {
+				int index = destinations.indexOf(destination);
+				
+				if ((index == max) && (max > 1) && (++done <= 3)) id.setText(done, destinations.get(index - 2));
+				if ((index > 0) && (++done <= 3)) id.setText(done, destinations.get(index - 1));
+				if (++done <= 3) id.setText(done, " >" + destination + "< ");
+				if ((max >= index + 1) && (++done <= 3)) id.setText(done, destinations.get(index + 1));
+				if ((max >= index + 2) && (++done <= 3)) id.setText(done, destinations.get(index + 2));
+			}
 		}
 		
 		for (done++; done <= 3; done++) {
