@@ -153,13 +153,14 @@ public class Portal {
 	}
 	
 	public void deactivate() {
+		if (fixed) return;
 		destinations.clear();
 		destination = "";
 		drawSign(true);
 	}
 	
 	public boolean isActive() {
-		return destinations.size() > 0;
+		return fixed || (destinations.size() > 0);
 	}
 	
 	public String getNetwork() {
