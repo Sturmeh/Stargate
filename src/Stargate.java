@@ -12,6 +12,7 @@ public class Stargate extends SuperPlugin {
 	private static String noownersMessage = "You feel a great power, yet feel a lack of belonging here...";
 	private static String unselectMessage = "You expect something to happen and seem puzzled, what now...";
 	private static String collisinMessage = "You anticipate a great surge, but it appears it's blocked..."; 
+	private static String defaultNetwork = "central";
 	
 	public Stargate() { super("stargate"); }
 
@@ -31,6 +32,7 @@ public class Stargate extends SuperPlugin {
 		noownersMessage = config.getString("not-owner-message", noownersMessage);
 		unselectMessage = config.getString("not-selected-message", unselectMessage);
 		collisinMessage = config.getString("other-side-blocked-message", collisinMessage);
+		defaultNetwork = config.getString("default-gate-network", defaultNetwork).toLowerCase().trim();
 		Portal.loadAllGates();
 	}
 	
@@ -40,6 +42,10 @@ public class Stargate extends SuperPlugin {
 	
 	public static String getSaveLocation() {
 		return gateSaveLocation;
+	}
+	
+	public static String getDefaultNetwork() {
+		return defaultNetwork;
 	}
 
 	private class Listener extends PluginListener {

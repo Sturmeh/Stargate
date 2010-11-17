@@ -38,41 +38,7 @@ public class Portal {
 	private ArrayList<String> destinations = new ArrayList<String>();
 	private String network;
 	
-	private Portal (Blox topLeft, int modX, int modZ, float rotX, SignPost id, Blox button) {
-		this.topLeft = topLeft;
-		this.modX = modX;
-		this.modZ = modZ;
-		this.rotX = rotX;
-		this.id = id;
-		this.destination = "";
-		this.button = button;
-		this.verified = true;
-		this.fixed = false;
-		this.network = "central";
-
-		this.setName(id.getText(0));
-		this.register();
-		this.drawSign(true);
-	}
-	
-	private Portal (Blox topLeft, int modX, int modZ, float rotX, SignPost id, String destName) {
-		this.topLeft = topLeft;
-		this.modX = modX;
-		this.modZ = modZ;
-		this.rotX = rotX;
-		this.id = id;
-		this.destination = destName;
-		this.verified = true;
-		this.fixed = true;
-		this.button = null;
-		this.network = "central";
-
-		this.setName(id.getText(0));
-		this.register();
-		this.drawSign(true);
-	}
-	
-	public Portal (String name, Blox topLeft, int modX, int modZ, float rotX, SignPost id, Blox button, String dest, Blox[] frame) {
+	private Portal (Blox topLeft, int modX, int modZ, float rotX, SignPost id, Blox button, String dest, String name, Blox[] frame, boolean verified) {
 		this.topLeft = topLeft;
 		this.modX = modX;
 		this.modZ = modZ;
@@ -80,13 +46,14 @@ public class Portal {
 		this.id = id;
 		this.destination = dest;
 		this.button = button;
-		this.name = name;
-		this.frame = frame;
-		this.verified = false;
+		this.verified = verified;
 		this.fixed = dest.length() > 0;
-		this.network = "central";
-		
+		this.network = Stargate.getDefaultNetwork();
+		this.frame = frame;
+		this.name = name;
+
 		this.register();
+		if (verified) this.drawSign(true);
 	}
 
 	public boolean isOpen() {
@@ -399,7 +366,7 @@ public class Portal {
 		Portal portal = null;
 		
 		if (destName.length() > 0) {
-			portal = new Portal(topleft, modX, modZ, rotX, id, destName);
+			portal = new Portal(topleft, modX, modZ, rotX, id, null, destName, name, null, true);
 			
 			Portal destination = getByName(destName);
 			if (destination != null) portal.open();
@@ -407,7 +374,7 @@ public class Portal {
 			Blox button = parent.makeRelative(modX * modN * 3 + modZ, 0, modZ * modN * 3 + -modX);
 			button.setType(BUTTON);
 	
-			portal = new Portal(topleft, modX, modZ, rotX, id, button);
+			portal = new Portal(topleft, modX, modZ, rotX, id, button, "", name, null, true);
 		}
 		
 		for (String originName : allPortals) {
@@ -538,7 +505,7 @@ public class Portal {
                     
                     String fixed = (split.length > 8) ? split[8] : "";
                     
-                    Portal portal = new Portal(name, topLeft, modX, modZ, rotX, sign, button, fixed, frameBlox);
+                    Portal portal = new Portal(topLeft, modX, modZ, rotX, sign, button, fixed, name, frameBlox, false);
                     
                     if (fixed.length() > 0) {
                     	if (portal.isVerified()) {
