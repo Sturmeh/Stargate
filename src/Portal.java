@@ -38,7 +38,10 @@ public class Portal {
 	private ArrayList<String> destinations = new ArrayList<String>();
 	private String network;
 	
-	private Portal (Blox topLeft, int modX, int modZ, float rotX, SignPost id, Blox button, String dest, String name, Blox[] frame, boolean verified) {
+	private Portal (Blox topLeft, int modX, int modZ,
+			float rotX, SignPost id, Blox button,
+			String dest, String name, Blox[] frame, 
+			boolean verified, String network) {
 		this.topLeft = topLeft;
 		this.modX = modX;
 		this.modZ = modZ;
@@ -48,7 +51,7 @@ public class Portal {
 		this.button = button;
 		this.verified = verified;
 		this.fixed = dest.length() > 0;
-		this.network = Stargate.getDefaultNetwork();
+		this.network = network;
 		this.frame = frame;
 		this.name = name;
 
@@ -152,6 +155,7 @@ public class Portal {
 	public void deactivate() {
 		destinations.clear();
 		destination = "";
+		drawSign(true);
 	}
 	
 	public boolean isActive() {
@@ -186,7 +190,7 @@ public class Portal {
 		} else {
 			if (isFixed()) {
 				id.setText(++done, "To: " + destination);
-			} else if (max > 0) {
+			} else {
 				int index = destinations.indexOf(destination);
 				
 				if ((index == max) && (max > 1) && (++done <= 3)) id.setText(done, destinations.get(index - 2));
@@ -318,8 +322,11 @@ public class Portal {
 		Blox topleft = null;
 		String name = filterName(id.getText(0));
 		String destName = filterName(id.getText(1));
+		String network = filterName(id.getText(2));
 		
-		if ((name.length() > 11) || (getByName(name) != null)) return null;
+		if ((name.length() < 1) || (name.length() > 11) || (getByName(name) != null)) return null;
+		if ((network.length() < 1) || (network.length() > 11)) network = Stargate.getDefaultNetwork();
+		if (destName.length() > 0) network = "";
 
 		int modX = 0;
 		int modZ = 0;
@@ -366,7 +373,7 @@ public class Portal {
 		Portal portal = null;
 		
 		if (destName.length() > 0) {
-			portal = new Portal(topleft, modX, modZ, rotX, id, null, destName, name, null, true);
+			portal = new Portal(topleft, modX, modZ, rotX, id, null, destName, name, null, true, network);
 			
 			Portal destination = getByName(destName);
 			if (destination != null) portal.open();
@@ -374,7 +381,7 @@ public class Portal {
 			Blox button = parent.makeRelative(modX * modN * 3 + modZ, 0, modZ * modN * 3 + -modX);
 			button.setType(BUTTON);
 	
-			portal = new Portal(topleft, modX, modZ, rotX, id, button, "", name, null, true);
+			portal = new Portal(topleft, modX, modZ, rotX, id, button, "", name, null, true, network);
 		}
 		
 		for (String originName : allPortals) {
@@ -452,9 +459,11 @@ public class Portal {
 	            	if (frameCount++ > 0) builder.append(";");
 	            	builder.append(block.toString());
 	            }
-	            
+
 	            builder.append(':');
 	            builder.append(portal.isFixed() ? portal.getDestinationName() : "");
+	            builder.append(':');
+	            builder.append(portal.getNetwork());
 	            
 	            bw.append(builder.toString());
 	            bw.newLine();
@@ -502,10 +511,11 @@ public class Portal {
                     
                     Blox[] frameBlox = new Blox[0];
                     frameBlox = frame.toArray(frameBlox);
-                    
+
                     String fixed = (split.length > 8) ? split[8] : "";
+                    String network = (split.length > 9) ? split[9] : Stargate.getDefaultNetwork();
                     
-                    Portal portal = new Portal(topLeft, modX, modZ, rotX, sign, button, fixed, name, frameBlox, false);
+                    Portal portal = new Portal(topLeft, modX, modZ, rotX, sign, button, fixed, name, frameBlox, false, network);
                     
                     if (fixed.length() > 0) {
                     	if (portal.isVerified()) {

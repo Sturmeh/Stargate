@@ -20,7 +20,12 @@ Fixed gates:
  - Fixed gates are like normal gates, but can only go to one destination and will always remain open.
  - If you create two fixed gates that point to eachother, you will have a two-way portal.
  - You can link gates to normal gates, or to other fixed gates which can link to another fixed gate etc. You can't link a normal gate to a fixed gate though.
- - Creating a fixed gate is the same as a normal gate, but you must specify the destination on the second line. 
+ - Creating a fixed gate is the same as a normal gate, but you must specify the destination on the second line.
+
+Gate networks:
+ - Gates are all part of a network, by default this is "central".
+ - You can specify (and create) your own network on the third line of the sign when making a new gate.
+ - Gates on one network will not see gates on the second network, and vice verca.
  
 Configuration:
  - You can edit all values in stargate.txt to your choosing, mostly the RP text on doing actions involving a gate.
