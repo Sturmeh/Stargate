@@ -515,6 +515,8 @@ public class Portal {
                     String fixed = (split.length > 8) ? split[8] : "";
                     String network = (split.length > 9) ? split[9] : Stargate.getDefaultNetwork();
                     
+                    if (fixed.length() > 0) network = "";
+                    
                     Portal portal = new Portal(topLeft, modX, modZ, rotX, sign, button, fixed, name, frameBlox, false, network);
                     
                     if (fixed.length() > 0) {
