@@ -1,9 +1,11 @@
+import java.util.concurrent.SynchronousQueue;
+
 /**
  * Stargate.java - Plug-in for hey0's minecraft mod.
  * @author Shaun (sturmeh)
  * @author Dinnerbone
  */
-public class Stargate extends SuperPlugin {
+public class Stargate extends ThreadedPlugin {
 	public final Listener listener = new Listener();
 	private static String gateSaveLocation = "stargates.txt";
 	private static String teleportMessage = "You feel weightless as the portal carries you to new land...";
@@ -14,6 +16,8 @@ public class Stargate extends SuperPlugin {
 	private static String collisinMessage = "You anticipate a great surge, but it appears it's blocked..."; 
 	private static String defaultNetwork = "central";
 	
+	private static SynchronousQueue<Portal> slip = new SynchronousQueue<Portal>();
+	
 	public Stargate() { super("stargate"); }
 
 	public void initializeExtra() {
@@ -22,9 +26,10 @@ public class Stargate extends SuperPlugin {
 		etc.getLoader().addListener(PluginLoader.Hook.BLOCK_DESTROYED, listener, this, PluginListener.Priority.MEDIUM);
 		etc.getLoader().addListener(PluginLoader.Hook.COMPLEX_BLOCK_CHANGE, listener, this, PluginListener.Priority.MEDIUM);
 		etc.getLoader().addListener(PluginLoader.Hook.COMPLEX_BLOCK_SEND, listener, this, PluginListener.Priority.MEDIUM);
+		setInterval(300); // 15 seconds.
 	}
 	
-	public void reloadExtra() {
+	public void reloadConfig() {
 		gateSaveLocation = config.getString("portal-save-location", gateSaveLocation);
 		teleportMessage = config.getString("teleport-message", teleportMessage);
 		registerMessage = config.getString("portal-create-message", registerMessage);
@@ -36,8 +41,20 @@ public class Stargate extends SuperPlugin {
 		Portal.loadAllGates();
 	}
 	
-	public void enableExtra() {
-		reloadExtra();
+	public synchronized void doWork() {
+		Portal open = Portal.getNextOpen();
+		
+		if (open != null) {
+			try {
+				slip.put(open);
+			} catch (InterruptedException e) {}
+		}
+	}
+	
+	public void threadSafeOperation() {
+		Portal open = slip.poll();
+		if (open != null)
+			open.close();
 	}
 	
 	public static String getSaveLocation() {
@@ -47,9 +64,32 @@ public class Stargate extends SuperPlugin {
 	public static String getDefaultNetwork() {
 		return defaultNetwork;
 	}
+	
+	private void onButtonPressed(Player player, Portal gate) {
+		Portal destination = gate.getDestination();
+		
+		if (!gate.isOpen()) {
+			if ((destination == null) || (destination == gate)) {
+				if (!unselectMessage.isEmpty())
+					player.sendMessage(Colors.Red + unselectMessage);
+			} else if ((destination.isOpen() || destination.isFixed())) {
+				if (!collisinMessage.isEmpty())
+					player.sendMessage(Colors.Red + collisinMessage);
+			} else {
+				gate.open(player);
+				destination.open(player);
+				destination.setDestination(gate);
+				if (destination.isVerified()) destination.drawSign(true);
+			}
+		} else {
+			gate.close();
+			if (destination != null) destination.close();
+		}
+	}
 
 	private class Listener extends PluginListener {
-		public void onPlayerMove(Player player, Location from, Location to) {	
+		public void onPlayerMove(Player player, Location from, Location to) {
+			threadSafeOperation();
 			Portal portal = Portal.getByEntrance(to);
 			
 			if ((portal != null) && (portal.isOpen())) {
@@ -146,28 +186,6 @@ public class Stargate extends SuperPlugin {
 			}
 			
 			return false;
-		}
-
-		private void onButtonPressed(Player player, Portal gate) {
-			Portal destination = gate.getDestination();
-			
-			if (!gate.isOpen()) {
-				if ((destination == null) || (destination == gate)) {
-					if (!unselectMessage.isEmpty())
-						player.sendMessage(Colors.Red + unselectMessage);
-				} else if ((destination.isOpen() || destination.isFixed())) {
-					if (!collisinMessage.isEmpty())
-						player.sendMessage(Colors.Red + collisinMessage);
-				} else {
-					gate.open(player);
-					destination.open(player);
-					destination.setDestination(gate);
-					if (destination.isVerified()) destination.drawSign(true);
-				}
-			} else {
-				gate.close();
-				if (destination != null) destination.close();
-			}
 		}
 	}
 }

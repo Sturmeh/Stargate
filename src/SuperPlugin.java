@@ -17,7 +17,6 @@ public abstract class SuperPlugin extends Plugin {
 	public SuperPlugin(String name) {
 		config = new PropertiesFile(name+".txt");
 		this.name = name;
-		reloadConfig();
 	}
 
 	/**
@@ -29,11 +28,6 @@ public abstract class SuperPlugin extends Plugin {
 	 * This is called when the plug-in is disabled.
 	 */
 	public void disableExtra() {}
-
-	/**
-	 * This is called when a reload is issued, read config here.
-	 */
-	public void reloadExtra() {}
 
 	/**
 	 * Called after including a reload check for the plug-in.
@@ -51,6 +45,7 @@ public abstract class SuperPlugin extends Plugin {
 	}
 
 	public void enable() {
+		reloadConfig();
 		enableExtra();
 		log.info(name+" was enabled.");
 	}
@@ -60,10 +55,7 @@ public abstract class SuperPlugin extends Plugin {
 		log.info(name+" was disabled.");
 	}
 
-	private void reloadConfig() {
-		config.load();
-		reloadExtra();
-	}
+	public void reloadConfig() {}
 
 	/**
 	 * Sends a message to all players!
@@ -103,6 +95,7 @@ public abstract class SuperPlugin extends Plugin {
 	private class ReloadListener extends PluginListener {
 		public boolean onCommand(Player player, String[] split) {
 			if (isApt("/reload", split[0], player)) {
+				config.load();
 				reloadConfig();
 			}
 			return extraCommand(player, split);

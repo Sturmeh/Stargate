@@ -33,6 +33,7 @@ public class Portal {
 	private Blox button;
 	private Player player;
 	private Blox[] frame;
+	private Blox[] space;
 	private boolean verified;
 	private boolean fixed;
 	private ArrayList<String> destinations = new ArrayList<String>();
@@ -58,6 +59,15 @@ public class Portal {
 		this.register();
 		if (verified) this.drawSign(true);
 	}
+	
+	public static Portal getNextOpen() {
+		for (String name : allPortals) {
+			Portal tmp = lookupNames.get(name);
+			if (tmp.isOpen())
+				return tmp;
+		}
+		return null;
+	}
 
 	public boolean isOpen() {
 		return getBlockAt(1, -3).getType() == PORTAL;
@@ -70,6 +80,9 @@ public class Portal {
 	public boolean open(Player openFor) {
 		if (isOpen()) return false;
 		
+		for (Blox inside : getSpace())
+			inside.setType(AIR);
+		
 		getBlockAt(1, -3).setType(FIRE);
 		player = openFor;
 		
@@ -77,7 +90,8 @@ public class Portal {
 	}
 
 	public void close() {
-		getBlockAt(1, -3).setType(AIR);
+		for (Blox inside : getSpace())
+			inside.setType(AIR);
 		player = null;
 		deactivate();
 	}
@@ -216,6 +230,20 @@ public class Portal {
 		};
 		
 		return entrances;
+	}
+	
+	public Blox[] getSpace() {
+		if (space == null) {
+			space = new Blox[] {
+				getBlockAt(1, -1),
+				getBlockAt(2, -1),
+				getBlockAt(1, -2),
+				getBlockAt(2, -2),
+				getBlockAt(1, -3),
+				getBlockAt(2, -3),
+			};
+		}
+		return space;
 	}
 	
 	public Blox[] getFrame() {
