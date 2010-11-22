@@ -26,7 +26,7 @@ public class Stargate extends ThreadedPlugin {
 		etc.getLoader().addListener(PluginLoader.Hook.BLOCK_DESTROYED, listener, this, PluginListener.Priority.MEDIUM);
 		etc.getLoader().addListener(PluginLoader.Hook.COMPLEX_BLOCK_CHANGE, listener, this, PluginListener.Priority.MEDIUM);
 		etc.getLoader().addListener(PluginLoader.Hook.COMPLEX_BLOCK_SEND, listener, this, PluginListener.Priority.MEDIUM);
-		setInterval(300); // 15 seconds.
+		setInterval(160); // 8 seconds.
 	}
 	
 	public void reloadConfig() {
@@ -53,8 +53,12 @@ public class Stargate extends ThreadedPlugin {
 	
 	public void threadSafeOperation() {
 		Portal open = slip.poll();
-		if (open != null)
-			open.close();
+		if (open != null) {
+			if (open.isOpen()) 
+				open.close();
+			else if (open.isActive()) 
+				open.deactivate();
+		}
 	}
 	
 	public static String getSaveLocation() {

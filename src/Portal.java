@@ -36,6 +36,7 @@ public class Portal {
 	private Blox[] space;
 	private boolean verified;
 	private boolean fixed;
+	private boolean gracePeriod;
 	private ArrayList<String> destinations = new ArrayList<String>();
 	private String network;
 	
@@ -52,6 +53,7 @@ public class Portal {
 		this.button = button;
 		this.verified = verified;
 		this.fixed = dest.length() > 0;
+		this.gracePeriod = false;
 		this.network = network;
 		this.frame = frame;
 		this.name = name;
@@ -60,10 +62,25 @@ public class Portal {
 		if (verified) this.drawSign(true);
 	}
 	
+	public synchronized boolean manipGrace(boolean set, boolean var) {
+		if (!set) return gracePeriod;
+		gracePeriod = var;
+		return false;
+	}
+	
+	private boolean pastGrace() {
+		if (isFixed()) return false; // ignore fixed gates.
+		if (manipGrace(false, false)) {
+			return manipGrace(true, false);
+		}
+		if (isActive() || isOpen()) return true;
+		return false; // else.
+	}
+	
 	public static Portal getNextOpen() {
 		for (String name : allPortals) {
 			Portal tmp = lookupNames.get(name);
-			if (tmp.isOpen())
+			if (tmp.pastGrace())
 				return tmp;
 		}
 		return null;
@@ -84,15 +101,26 @@ public class Portal {
 			inside.setType(AIR);
 		
 		getBlockAt(1, -3).setType(FIRE);
+		
 		player = openFor;
+		manipGrace(true, true);
 		
 		return true;
 	}
 
 	public void close() {
+		if (fixed) return;
+		Portal end = getDestination();
+		
+		if (end != null && end.isOpen()) {
+			end.deactivate(); // Clear it's destination first.
+			end.close();
+		}
+		
 		for (Blox inside : getSpace())
 			inside.setType(AIR);
 		player = null;
+		
 		deactivate();
 	}
 	
@@ -206,6 +234,7 @@ public class Portal {
 			if (isFixed()) {
 				id.setText(++done, "To: " + destination);
 			} else {
+				manipGrace(true, true);
 				int index = destinations.indexOf(destination);
 				
 				if ((index == max) && (max > 1) && (++done <= 3)) id.setText(done, destinations.get(index - 2));
