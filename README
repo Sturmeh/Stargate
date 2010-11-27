@@ -30,3 +30,4 @@ Gate networks:
 Configuration:
  - You can edit all values in stargate.txt to your choosing, mostly the RP text on doing actions involving a gate.
  - Destroying gates is restricted to users with the /stargate command permission (Though, note, there is no command /stargate)
+ - If you have iConomy, you can set "cost-to-use" and "cost-to-create" to modify how much money it will cost a user to use or create a Stargate, respectively.
