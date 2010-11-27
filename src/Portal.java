@@ -409,7 +409,7 @@ public class Portal {
         return String.format("Portal [id=%s, name=%s]", id, name);
     }
 
-    public static Portal createPortal(SignPost id) {
+    public static Portal createPortal(SignPost id, Player player) {
         Block idParent = id.getParent();
 
         if (idParent.getType() != OBSIDIAN) {
@@ -471,6 +471,13 @@ public class Portal {
 
         entry.setType(AIR);
         if (!isPortal) {
+            return null;
+        }
+
+        if (!Stargate.deductCost(player, Stargate.getCostCreate())) {
+            if (!Stargate.getCantAffordToNew().isEmpty()) {
+                player.sendMessage(Colors.Red + Stargate.getCantAffordToNew());
+            }
             return null;
         }
 

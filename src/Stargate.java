@@ -85,6 +85,14 @@ public class Stargate extends ThreadedPlugin {
         return defaultNetwork;
     }
 
+    public static String getCantAffordToNew() {
+        return cantAffordToNew;
+    }
+
+    public static int getCostCreate() {
+        return portalCostCreate;
+    }
+
     public static boolean deductCost(Player player, int cost) {
         if ((cost > 0) && (iData.iExist())) {
             iData icon = new iData();
@@ -205,14 +213,7 @@ public class Stargate extends ThreadedPlugin {
                 return true;
             }
 
-            if (!deductCost(player, portalCostCreate)) {
-                if (!cantAffordToUse.isEmpty()) {
-                    player.sendMessage(Colors.Red + cantAffordToUse);
-                }
-                return true;
-            }
-
-            Portal portal = Portal.createPortal(sign);
+            Portal portal = Portal.createPortal(sign, player);
 
             if (portal != null && !registerMessage.isEmpty()) {
                 player.sendMessage(Colors.Green + registerMessage);
@@ -259,7 +260,6 @@ public class Stargate extends ThreadedPlugin {
                     if (blockClicked.getType() == Portal.SIGN) {
                         if ((!portal.isOpen()) && (!portal.isFixed())) {
                             portal.cycleDestination();
-
                         }
                     } else if (blockClicked.getType() == Portal.BUTTON) {
                         onButtonPressed(player, portal);
