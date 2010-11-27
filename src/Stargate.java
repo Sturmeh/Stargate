@@ -44,9 +44,14 @@ public class Stargate extends ThreadedPlugin {
         noownersMessage = config.getString("not-owner-message", noownersMessage);
         unselectMessage = config.getString("not-selected-message", unselectMessage);
         collisinMessage = config.getString("other-side-blocked-message", collisinMessage);
-        defaultNetwork = config.getString("default-gate-network", defaultNetwork).trim();
         cantAffordToUse = config.getString("cant-afford-use-message", collisinMessage);
         cantAffordToNew = config.getString("cant-afford-create-message", collisinMessage);
+
+        defaultNetwork = config.getString("default-gate-network", defaultNetwork).trim();
+
+        portalCostUse = config.getInt("cost-to-use", portalCostUse);
+        portalCostCreate = config.getInt("cost-to-create", portalCostCreate);
+
         Portal.loadAllGates();
     }
 
