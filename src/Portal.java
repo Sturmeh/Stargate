@@ -663,7 +663,7 @@ public class Portal {
     }
 
     public static String filterName(String input) {
-        return input.replaceAll("\\|", "").trim();
+        return input.replaceAll("[\\|:#]", "").trim();
     }
 
     public static Portal getNextOpen() {

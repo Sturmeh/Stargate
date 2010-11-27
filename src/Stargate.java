@@ -14,10 +14,14 @@ public class Stargate extends ThreadedPlugin {
     private static String registerMessage = "You feel a slight tremble in the ground around the portal...";
     private static String destroyzMessage = "You feel a great shift in energy, as it leaves the portal...";
     private static String noownersMessage = "You feel a great power, yet feel a lack of belonging here...";
-    private static String unselectMessage = "You expect something to happen and seem puzzled, what now...";
+    private static String unselectMessage = "You seem to want to go somewhere, but it's still a secret..."; 
     private static String collisinMessage = "You anticipate a great surge, but it appears it's blocked...";
+    private static String cantAffordToUse = "You check your pocket for spare coin, sadly you find none...";
+    private static String cantAffordToNew = "You check your pocket for spare coin, sadly you find none...";
     private static String defaultNetwork = "central";
     private static SynchronousQueue<Portal> slip = new SynchronousQueue<Portal>();
+    private static int portalCostUse = 0;
+    private static int portalCostCreate = 0;
 
     public Stargate() {
         super("stargate");
@@ -40,7 +44,9 @@ public class Stargate extends ThreadedPlugin {
         noownersMessage = config.getString("not-owner-message", noownersMessage);
         unselectMessage = config.getString("not-selected-message", unselectMessage);
         collisinMessage = config.getString("other-side-blocked-message", collisinMessage);
-        defaultNetwork = config.getString("default-gate-network", defaultNetwork).toLowerCase().trim();
+        defaultNetwork = config.getString("default-gate-network", defaultNetwork).trim();
+        cantAffordToUse = config.getString("cant-afford-use-message", collisinMessage);
+        cantAffordToNew = config.getString("cant-afford-create-message", collisinMessage);
         Portal.loadAllGates();
     }
 
@@ -74,6 +80,22 @@ public class Stargate extends ThreadedPlugin {
         return defaultNetwork;
     }
 
+    public static boolean deductCost(Player player, int cost) {
+        if ((cost > 0) && (iData.iExist())) {
+            iData icon = new iData();
+            int balance = icon.getBalance(player.getName());
+
+            if (balance >= cost) {
+                icon.setBalance(player.getName(), balance - cost);
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     private void onButtonPressed(Player player, Portal gate) {
         Portal destination = gate.getDestination();
 
@@ -86,12 +108,16 @@ public class Stargate extends ThreadedPlugin {
                 if (!collisinMessage.isEmpty()) {
                     player.sendMessage(Colors.Red + collisinMessage);
                 }
-            } else {
+            } else if (deductCost(player, portalCostUse)) {
                 gate.open(player);
                 destination.open(player);
                 destination.setDestination(gate);
                 if (destination.isVerified()) {
                     destination.drawSign(true);
+                }
+            } else {
+                if (!cantAffordToUse.isEmpty()) {
+                    player.sendMessage(Colors.Red + cantAffordToUse);
                 }
             }
         } else {
@@ -171,6 +197,13 @@ public class Stargate extends ThreadedPlugin {
             SignPost sign = new SignPost((Sign) signBlock);
 
             if (!player.canUseCommand("/stargatecreate")) {
+                return true;
+            }
+
+            if (!deductCost(player, portalCostCreate)) {
+                if (!cantAffordToUse.isEmpty()) {
+                    player.sendMessage(Colors.Red + cantAffordToUse);
+                }
                 return true;
             }
 
