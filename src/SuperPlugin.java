@@ -1,3 +1,4 @@
+import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 /**
@@ -95,7 +96,11 @@ public abstract class SuperPlugin extends Plugin {
 	private class ReloadListener extends PluginListener {
 		public boolean onCommand(Player player, String[] split) {
 			if (isApt("/reload", split[0], player)) {
-				config.load();
+				try {
+					config.load();
+				} catch (IOException e) {
+					log.warning("Failed to load "+name+".txt: " + e.getMessage());
+				}
 				reloadConfig();
 			}
 			return extraCommand(player, split);
