@@ -19,6 +19,7 @@ public class Gate {
     public static final int ENTRANCE = -2;
     public static final int CONTROL = -3;
     private static ArrayList<Gate> gates = new ArrayList<Gate>();
+    private static HashMap<Integer, ArrayList<Gate>> controlBlocks = new HashMap<Integer, ArrayList<Gate>>();
     private String filename;
     private Integer[][] layout;
     private HashMap<Character, Integer> types;
@@ -122,6 +123,54 @@ public class Gate {
         return controls;
     }
 
+    public int getControlBlock() {
+        return types.get('-');
+    }
+
+    public boolean matches(Block topleft) {
+        return matches(new Blox(topleft));
+    }
+
+    public boolean matches(Blox topleft) {
+        for (int y = 0; y < layout.length; y++) {
+            for (int x = 0; x < layout[y].length; x++) {
+                int id = layout[y][x];
+
+                if (id == ENTRANCE) {
+                    if (topleft.getType() != 0) {
+                        return false;
+                    }
+                } else if (id == CONTROL) {
+                    if (topleft.getType() != getControlBlock()) {
+                        return false;
+                    }
+                } else if (id != ANYTHING) {
+                     if (topleft.getType() != id) {
+                         return false;
+                     }
+                }
+            }
+        }
+
+        return true;
+    }
+
+    private static void registerGate(Gate gate) {
+        gates.add(gate);
+
+        RelativeBlockVector[] controls = gate.getControls();
+
+        for (RelativeBlockVector vector : controls) {
+            int id = gate.getControlBlock();
+
+            if (!controlBlocks.containsKey(id)) {
+                controlBlocks.put(id, new ArrayList<Gate>());
+            }
+
+            controlBlocks.get(id).add(gate);
+        }
+    }
+
     public static void loadGates() {
         File dir = new File("stargates");
         File[] files;
@@ -138,7 +187,7 @@ public class Gate {
         } else {
             for (File file : files) {
                 Gate gate = loadGate(file);
-                if (gate != null) gates.add(gate);
+                if (gate != null) registerGate(gate);
             }
         }
     }
@@ -251,7 +300,19 @@ public class Gate {
 
         Gate gate = new Gate("nethergate.gate", layout, types);
         gate.save();
-        gates.add(gate);
+        registerGate(gate);
+    }
+
+    public static Gate[] getGatesByControlBlock(Block block) {
+        return getGatesByControlBlock(block.getType());
+    }
+
+    public static Gate[] getGatesByControlBlock(int type) {
+        Gate[] result = new Gate[0];
+        
+        controlBlocks.get(type).toArray(result);
+
+        return result;
     }
     
     static class StargateFilenameFilter implements FilenameFilter {
