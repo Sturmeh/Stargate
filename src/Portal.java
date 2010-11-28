@@ -15,8 +15,6 @@ import java.util.logging.Level;
 public class Portal {
     public static final int OBSIDIAN = 49;
     public static final int FIRE = 51;
-    public static final int AIR = 0;
-    public static final int PORTAL = 90;
     public static final int SIGN = 68;
     public static final int BUTTON = 77;
     private static final HashMap<String, Portal> lookupBlocks = new HashMap<String, Portal>();
@@ -87,7 +85,7 @@ public class Portal {
     }
 
     public boolean isOpen() {
-        return getEntrances()[0].getType() == PORTAL;
+        return getEntrances()[0].getType() == gate.getPortalBlockOpen();
     }
 
     public boolean open() {
@@ -100,7 +98,7 @@ public class Portal {
         }
 
         for (Blox inside : getEntrances()) {
-            inside.setType(PORTAL);
+            inside.setType(gate.getPortalBlockOpen());
         }
 
         player = openFor;
@@ -121,7 +119,7 @@ public class Portal {
         }
 
         for (Blox inside : getEntrances()) {
-            inside.setType(AIR);
+            inside.setType(gate.getPortalBlockClosed());
         }
         player = null;
 

@@ -26,6 +26,8 @@ public class Gate {
     private RelativeBlockVector[] entrances = new RelativeBlockVector[0];
     private RelativeBlockVector[] border = new RelativeBlockVector[0];
     private RelativeBlockVector[] controls = new RelativeBlockVector[0];
+    private int portalBlockOpen = 90;
+    private int portalBlockClosed = 0;
 
     private Gate(String filename, Integer[][] layout, HashMap<Character, Integer> types) {
         this.filename = filename;
@@ -64,6 +66,12 @@ public class Gate {
 
         try {
             BufferedWriter bw = new BufferedWriter(new FileWriter("stargates/" + filename));
+
+            bw.append("portal-open=" + portalBlockOpen);
+            bw.newLine();
+            bw.append("portal-closed=" + portalBlockClosed);
+            bw.newLine();
+
             for (Character type : types.keySet()) {
                 Integer value = types.get(type);
 
@@ -131,6 +139,14 @@ public class Gate {
         return filename;
     }
 
+    public int getPortalBlockOpen() {
+        return portalBlockOpen;
+    }
+
+    public int getPortalBlockClosed() {
+        return portalBlockClosed;
+    }
+
     public boolean matches(Block topleft, int modX, int modZ) {
         return matches(new Blox(topleft), modX, modZ);
     }
@@ -180,6 +196,7 @@ public class Gate {
         boolean designing = false;
         ArrayList<ArrayList<Integer>> design = new ArrayList<ArrayList<Integer>>();
         HashMap<Character, Integer> types = new HashMap<Character, Integer>();
+        HashMap<String, String> config = new HashMap<String, String>();
         int cols = 0;
 
         try {
@@ -229,7 +246,7 @@ public class Gate {
 
                             types.put(symbol, id);
                         } else {
-                            // TODO: Support for cost, permissions, etc
+                            config.put(key, value);
                         }
                     }
                 }
@@ -259,6 +276,13 @@ public class Gate {
         }
 
         Gate gate = new Gate(file.getName(), layout, types);
+
+        if (config.containsKey("portal-open")) {
+            gate.portalBlockOpen = Integer.getInteger(config.get("portal-open"));
+        }
+        if (config.containsKey("portal-closed")) {
+            gate.portalBlockClosed = Integer.getInteger(config.get("portal-closed"));
+        }
 
         if (gate.getControls().length != 2) {
             Stargate.log(Level.SEVERE, "Could not load Gate " + file.getName() + " - Gates must have exactly 2 control points.");

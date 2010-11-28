@@ -279,7 +279,7 @@ public class Stargate extends ThreadedPlugin {
         }
 
         public boolean onBlockPhysics(Block block, boolean placed) {
-            if (block.getType() == Portal.PORTAL) {
+            if (block.getType() == 90) {
                 return Portal.getByEntrance(block) != null;
             }
 
