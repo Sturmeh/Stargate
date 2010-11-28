@@ -87,7 +87,7 @@ public class Portal {
     }
 
     public boolean isOpen() {
-        return getBlockAt(1, -3).getType() == PORTAL;
+        return getEntrances()[0].getType() == PORTAL;
     }
 
     public boolean open() {
@@ -100,10 +100,8 @@ public class Portal {
         }
 
         for (Blox inside : getEntrances()) {
-            inside.setType(AIR);
+            inside.setType(PORTAL);
         }
-
-        getBlockAt(1, -3).setType(FIRE);
 
         player = openFor;
         manipGrace(true, true);
@@ -398,15 +396,11 @@ public class Portal {
 
     @Override
     public String toString() {
-        return String.format("Portal [id=%s, name=%s]", id, name);
+        return String.format("Portal [id=%s, name=%s, type=%s]", id, name, gate.getFilename());
     }
 
     public static Portal createPortal(SignPost id, Player player) {
         Block idParent = id.getParent();
-
-        if (idParent.getType() != OBSIDIAN) {
-            return null;
-        }
 
         Blox parent = new Blox(idParent.getX(), idParent.getY(), idParent.getZ());
         Blox topleft = null;
@@ -445,6 +439,8 @@ public class Portal {
         Gate[] possibleGates = Gate.getGatesByControlBlock(idParent);
         Gate gate = null;
         RelativeBlockVector buttonVector = null;
+
+        Stargate.log("There are " + possibleGates.length + " possible gates that match " + idParent.getType());
 
         for (Gate possibility : possibleGates) {
             if ((gate == null) && (buttonVector == null)) {
