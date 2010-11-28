@@ -15,14 +15,16 @@ import java.util.logging.Level;
  * @author Dinnerbone
  */
 public class Gate {
-    public static final int ENTRANCE = -2;
     public static final int ANYTHING = -1;
+    public static final int ENTRANCE = -2;
+    public static final int CONTROL = -3;
     private static ArrayList<Gate> gates = new ArrayList<Gate>();
     private String filename;
     private Integer[][] layout;
     private HashMap<Character, Integer> types;
-    private RelativeBlockVector[] entrances;
-    private RelativeBlockVector[] border;
+    private RelativeBlockVector[] entrances = new RelativeBlockVector[0];
+    private RelativeBlockVector[] border = new RelativeBlockVector[0];
+    private RelativeBlockVector[] controls = new RelativeBlockVector[0];
 
     private Gate(String filename, Integer[][] layout, HashMap<Character, Integer> types) {
         this.filename = filename;
@@ -35,6 +37,7 @@ public class Gate {
     private void populateCoordinates() {
         ArrayList<RelativeBlockVector> entrances = new ArrayList<RelativeBlockVector>();
         ArrayList<RelativeBlockVector> border = new ArrayList<RelativeBlockVector>();
+        ArrayList<RelativeBlockVector> controls = new ArrayList<RelativeBlockVector>();
 
         for (int y = 0; y < layout.length; y++) {
             for (int x = 0; x < layout[y].length; x++) {
@@ -42,11 +45,17 @@ public class Gate {
 
                 if (id == ENTRANCE) {
                     entrances.add(new RelativeBlockVector(x, y, 0));
+                } else if (id == CONTROL) {
+                    controls.add(new RelativeBlockVector(x, y, 0));
                 } else if (id != ANYTHING) {
                     border.add(new RelativeBlockVector(x, y, 0));
                 }
             }
         }
+
+        this.entrances = entrances.toArray(this.entrances);
+        this.border = border.toArray(this.border);
+        this.controls = controls.toArray(this.controls);
     }
     
     public void save() {
@@ -56,7 +65,10 @@ public class Gate {
             BufferedWriter bw = new BufferedWriter(new FileWriter("stargates/" + filename));
             for (Character type : types.keySet()) {
                 Integer value = types.get(type);
-                reverse.put(value, type);
+
+                if (!type.equals('-')) {
+                    reverse.put(value, type);
+                }
 
                 bw.append(type);
                 bw.append('=');
@@ -72,9 +84,11 @@ public class Gate {
                     Character symbol;
 
                     if (id == ENTRANCE) {
-                        symbol = 'O';
+                        symbol = '.';
                     } else if (id == ANYTHING) {
                         symbol = ' ';
+                    } else if (id == CONTROL) {
+                        symbol = '-';
                     } else if (reverse.containsKey(id)) {
                         symbol = reverse.get(id);
                     } else {
@@ -102,6 +116,10 @@ public class Gate {
 
     public RelativeBlockVector[] getBorder() {
         return border;
+    }
+
+    public RelativeBlockVector[] getControls() {
+        return controls;
     }
 
     public static void loadGates() {
@@ -148,11 +166,13 @@ public class Gate {
                     for (Character symbol : line.toCharArray()) {
                         Integer id = ANYTHING;
 
-                        if (symbol == 'O') {
+                        if (symbol.equals('.')) {
                             id = ENTRANCE;
-                        } else if (symbol == ' ') {
+                        } else if (symbol.equals(' ')) {
                             id = ANYTHING;
-                        } else if ((symbol == '?') || (!types.containsKey(symbol))) {
+                        } else if (symbol.equals('-')) {
+                            id = CONTROL;
+                        } else if ((symbol.equals('?')) || (!types.containsKey(symbol))) {
                             Stargate.log(Level.SEVERE, "Could not load Gate " + file.getName() + " - Unknown symbol '" + symbol + "' in diagram");
                             return null;
                         } else {
@@ -207,21 +227,27 @@ public class Gate {
         }
 
         Gate gate = new Gate(file.getName(), layout, types);
-        gate.save(); // Updates format for version changes
 
-        return gate;
+        if (gate.getControls().length != 2) {
+            Stargate.log(Level.SEVERE, "Could not load Gate " + file.getName() + " - Gates must have exactly 2 control points.");
+            return null;
+        } else {
+            gate.save(); // Updates format for version changes
+            return gate;
+        }
     }
     
     public static void populateDefaults(File dir) {
         Integer[][] layout = new Integer[][] {
             {ANYTHING, Portal.OBSIDIAN, Portal.OBSIDIAN, ANYTHING},
             {Portal.OBSIDIAN, ENTRANCE, ENTRANCE, Portal.OBSIDIAN},
-            {Portal.OBSIDIAN, ENTRANCE, ENTRANCE, Portal.OBSIDIAN},
+            {CONTROL, ENTRANCE, ENTRANCE, CONTROL},
             {Portal.OBSIDIAN, ENTRANCE, ENTRANCE, Portal.OBSIDIAN},
             {ANYTHING, Portal.OBSIDIAN, Portal.OBSIDIAN, ANYTHING},
         };
         HashMap<Character, Integer> types = new HashMap<Character, Integer>();
         types.put('X', Portal.OBSIDIAN);
+        types.put('-', Portal.OBSIDIAN);
 
         Gate gate = new Gate("nethergate.gate", layout, types);
         gate.save();
