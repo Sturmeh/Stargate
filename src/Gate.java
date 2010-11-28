@@ -8,10 +8,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
- * Portal.java - Plug-in for hey0's minecraft mod.
+ * Gate.java - Plug-in for hey0's minecraft mod.
  * @author Shaun (sturmeh)
  * @author Dinnerbone
  */
@@ -22,11 +21,32 @@ public class Gate {
     private String filename;
     private Integer[][] layout;
     private HashMap<Character, Integer> types;
+    private RelativeBlockVector[] entrances;
+    private RelativeBlockVector[] border;
 
     private Gate(String filename, Integer[][] layout, HashMap<Character, Integer> types) {
         this.filename = filename;
         this.layout = layout;
         this.types = types;
+
+        populateCoordinates();
+    }
+
+    private void populateCoordinates() {
+        ArrayList<RelativeBlockVector> entrances = new ArrayList<RelativeBlockVector>();
+        ArrayList<RelativeBlockVector> border = new ArrayList<RelativeBlockVector>();
+
+        for (int y = 0; y < layout.length; y++) {
+            for (int x = 0; x < layout[y].length; x++) {
+                Integer id = layout[y][x];
+
+                if (id == ENTRANCE) {
+                    entrances.add(new RelativeBlockVector(x, y, 0));
+                } else if (id != ANYTHING) {
+                    border.add(new RelativeBlockVector(x, y, 0));
+                }
+            }
+        }
     }
     
     public void save() {
@@ -68,12 +88,20 @@ public class Gate {
 
             bw.close();
         } catch (IOException ex) {
-            Logger.getLogger(Gate.class.getName()).log(Level.SEVERE, null, ex);
+            Stargate.log(Level.SEVERE, "Could not load Gate " + filename + " - " + ex.getMessage());
         }
     }
 
     public Integer[][] getLayout() {
         return layout;
+    }
+
+    public RelativeBlockVector[] getEntrances() {
+        return entrances;
+    }
+
+    public RelativeBlockVector[] getBorder() {
+        return border;
     }
 
     public static void loadGates() {
@@ -125,7 +153,7 @@ public class Gate {
                         } else if (symbol == ' ') {
                             id = ANYTHING;
                         } else if ((symbol == '?') || (!types.containsKey(symbol))) {
-                            Stargate.log(Level.SEVERE, "Could not load Gate " + file.getAbsolutePath() + " - Unknown symbol '" + symbol + "' in diagram");
+                            Stargate.log(Level.SEVERE, "Could not load Gate " + file.getName() + " - Unknown symbol '" + symbol + "' in diagram");
                             return null;
                         } else {
                             id = types.get(symbol);
@@ -155,12 +183,12 @@ public class Gate {
                 }
             }
         } catch (Exception ex) {
-            Logger.getLogger(Gate.class.getName()).log(Level.SEVERE, null, ex);
+            Stargate.log(Level.SEVERE, "Could not load Gate " + file.getName() + " - Invalid block ID given");
             return null;
         } finally {
             if (scanner != null) scanner.close();
         }
-Stargate.log(design.size() + " - " + cols + " - " + types.size());
+        
         Integer[][] layout = new Integer[design.size()][cols];
 
         for (int y = 0; y < design.size(); y++) {
