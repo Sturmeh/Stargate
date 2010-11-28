@@ -144,6 +144,10 @@ public class Portal {
         return getLocAt(1.5, -3.0, 1.0);
     }
 
+    public float getRotation() {
+        return rotX;
+    }
+
     public void setName(String name) {
         this.name = filterName(name);
 
