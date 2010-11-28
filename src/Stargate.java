@@ -52,6 +52,7 @@ public class Stargate extends ThreadedPlugin {
         portalCostUse = config.getInt("cost-to-use", portalCostUse);
         portalCostCreate = config.getInt("cost-to-create", portalCostCreate);
 
+        Gate.loadGates();
         Portal.loadAllGates();
     }
 
