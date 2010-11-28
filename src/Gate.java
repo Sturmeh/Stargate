@@ -18,7 +18,7 @@ public class Gate {
     public static final int ANYTHING = -1;
     public static final int ENTRANCE = -2;
     public static final int CONTROL = -3;
-    private static ArrayList<Gate> gates = new ArrayList<Gate>();
+    private static HashMap<String, Gate> gates = new HashMap<String, Gate>();
     private static HashMap<Integer, ArrayList<Gate>> controlBlocks = new HashMap<Integer, ArrayList<Gate>>();
     private String filename;
     private Integer[][] layout;
@@ -127,6 +127,10 @@ public class Gate {
         return types.get('-');
     }
 
+    public String getFilename() {
+        return filename;
+    }
+
     public boolean matches(Block topleft, int modX, int modZ) {
         return matches(new Blox(topleft), modX, modZ);
     }
@@ -137,15 +141,15 @@ public class Gate {
                 int id = layout[y][x];
 
                 if (id == ENTRANCE) {
-                    if (topleft.modRelative(-x, -y, 0, modX, 0, modZ).getType() != 0) {
+                    if (topleft.modRelative(x, y, 0, modX, 1, modZ).getType() != 0) {
                         return false;
                     }
                 } else if (id == CONTROL) {
-                    if (topleft.modRelative(-x, -y, 0, modX, 0, modZ).getType() != getControlBlock()) {
+                    if (topleft.modRelative(x, y, 0, modX, 1, modZ).getType() != getControlBlock()) {
                         return false;
                     }
                 } else if (id != ANYTHING) {
-                     if (topleft.modRelative(-x, -y, 0, modX, 0, modZ).getType() != id) {
+                     if (topleft.modRelative(x, y, 0, modX, 1, modZ).getType() != id) {
                          return false;
                      }
                 }
@@ -156,7 +160,7 @@ public class Gate {
     }
 
     private static void registerGate(Gate gate) {
-        gates.add(gate);
+        gates.put(gate.getFilename(), gate);
 
         RelativeBlockVector[] controls = gate.getControls();
 
@@ -171,28 +175,7 @@ public class Gate {
         }
     }
 
-    public static void loadGates() {
-        File dir = new File("stargates");
-        File[] files;
-
-        if (dir.exists()) {
-            files = dir.listFiles(new StargateFilenameFilter());
-        } else {
-            files = new File[0];
-        }
-
-        if (files.length == 0) {
-            dir.mkdir();
-            populateDefaults(dir);
-        } else {
-            for (File file : files) {
-                Gate gate = loadGate(file);
-                if (gate != null) registerGate(gate);
-            }
-        }
-    }
-
-    public static Gate loadGate(File file) {
+    private static Gate loadGate(File file) {
         Scanner scanner = null;
         boolean designing = false;
         ArrayList<ArrayList<Integer>> design = new ArrayList<ArrayList<Integer>>();
@@ -227,7 +210,7 @@ public class Gate {
                         } else {
                             id = types.get(symbol);
                         }
-                        
+
                         row.add(id);
                     }
 
@@ -257,7 +240,7 @@ public class Gate {
         } finally {
             if (scanner != null) scanner.close();
         }
-        
+
         Integer[][] layout = new Integer[design.size()][cols];
 
         for (int y = 0; y < design.size(); y++) {
@@ -283,6 +266,27 @@ public class Gate {
         } else {
             gate.save(); // Updates format for version changes
             return gate;
+        }
+    }
+
+    public static void loadGates() {
+        File dir = new File("stargates");
+        File[] files;
+
+        if (dir.exists()) {
+            files = dir.listFiles(new StargateFilenameFilter());
+        } else {
+            files = new File[0];
+        }
+
+        if (files.length == 0) {
+            dir.mkdir();
+            populateDefaults(dir);
+        } else {
+            for (File file : files) {
+                Gate gate = loadGate(file);
+                if (gate != null) registerGate(gate);
+            }
         }
     }
     
@@ -313,6 +317,10 @@ public class Gate {
         result = controlBlocks.get(type).toArray(result);
 
         return result;
+    }
+
+    public static Gate getGateByName(String name) {
+        return gates.get(name);
     }
     
     static class StargateFilenameFilter implements FilenameFilter {

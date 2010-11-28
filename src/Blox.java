@@ -37,7 +37,7 @@ public class Blox {
 	}
 
         public Blox modRelative(int right, int depth, int distance, int modX, int modY, int modZ) {
-             return makeRelative(-right * modX + distance * modZ, depth, -right * modZ + -distance * modX);
+             return makeRelative(-right * modX + distance * modZ, -depth * modY, -right * modZ + -distance * modX);
         }
 
 	public void setType(int type) {

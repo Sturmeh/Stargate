@@ -33,17 +33,18 @@ public class Portal {
     private Blox button;
     private Player player;
     private Blox[] frame;
-    private Blox[] space;
+    private Blox[] entrances;
     private boolean verified;
     private boolean fixed;
     private boolean gracePeriod;
     private ArrayList<String> destinations = new ArrayList<String>();
     private String network;
+    private Gate gate;
 
     private Portal(Blox topLeft, int modX, int modZ,
             float rotX, SignPost id, Blox button,
-            String dest, String name, Blox[] frame,
-            boolean verified, String network) {
+            String dest, String name,
+            boolean verified, String network, Gate gate) {
         this.topLeft = topLeft;
         this.modX = modX;
         this.modZ = modZ;
@@ -55,8 +56,8 @@ public class Portal {
         this.fixed = dest.length() > 0;
         this.gracePeriod = false;
         this.network = network;
-        this.frame = frame;
         this.name = name;
+        this.gate = gate;
 
         this.register();
         if (verified) {
@@ -98,7 +99,7 @@ public class Portal {
             return false;
         }
 
-        for (Blox inside : getSpace()) {
+        for (Blox inside : getEntrances()) {
             inside.setType(AIR);
         }
 
@@ -121,7 +122,7 @@ public class Portal {
             end.close();
         }
 
-        for (Blox inside : getSpace()) {
+        for (Blox inside : getEntrances()) {
             inside.setType(AIR);
         }
         player = null;
@@ -184,14 +185,7 @@ public class Portal {
     }
 
     public boolean checkIntegrity() {
-        boolean result = true;
-        Blox[] frame = getFrame();
-
-        for (int i = 0; i < frame.length && result; i++) {
-            result = result && frame[i].getType() == OBSIDIAN;
-        }
-
-        return result;
+        return gate.matches(topLeft, modX, modZ);
     }
 
     public void activate() {
@@ -282,41 +276,27 @@ public class Portal {
     }
 
     public Blox[] getEntrances() {
-        Blox[] entrances = {
-            getBlockAt(1, -3),
-            getBlockAt(2, -3)
-        };
+        if (entrances == null) {
+            RelativeBlockVector[] space = gate.getEntrances();
+            entrances = new Blox[space.length];
+            int i = 0;
 
-        return entrances;
-    }
-
-    public Blox[] getSpace() {
-        if (space == null) {
-            space = new Blox[]{
-                        getBlockAt(1, -1),
-                        getBlockAt(2, -1),
-                        getBlockAt(1, -2),
-                        getBlockAt(2, -2),
-                        getBlockAt(1, -3),
-                        getBlockAt(2, -3),};
+            for (RelativeBlockVector vector : space) {
+                entrances[i++] = getBlockAt(vector);
+            }
         }
-        return space;
+        return entrances;
     }
 
     public Blox[] getFrame() {
         if (frame == null) {
-            frame = new Blox[]{
-                        getBlockAt(1, 0),
-                        getBlockAt(2, 0),
-                        getBlockAt(0, -1),
-                        getBlockAt(3, -1),
-                        getBlockAt(0, -2),
-                        getBlockAt(3, -2),
-                        getBlockAt(0, -3),
-                        getBlockAt(3, -3),
-                        getBlockAt(1, -4),
-                        getBlockAt(2, -4)
-                    };
+            RelativeBlockVector[] border = gate.getBorder();
+            frame = new Blox[border.length];
+            int i = 0;
+
+            for (RelativeBlockVector vector : border) {
+                frame[i++] = getBlockAt(vector);
+            }
         }
 
         return frame;
@@ -382,7 +362,15 @@ public class Portal {
     }
 
     private Blox getBlockAt(int right, int depth) {
-        return topLeft.makeRelative(-right * modX, depth, -right * modZ);
+        return getBlockAt(right, depth, 0);
+    }
+
+    private Blox getBlockAt(RelativeBlockVector vector) {
+        return topLeft.modRelative(vector.getRight(), vector.getDepth(), vector.getDistance(), modX, 1, modZ);
+    }
+
+    private Blox getBlockAt(int right, int depth, int distance) {
+        return topLeft.modRelative(right, depth, distance, modX, 1, modZ);
     }
 
     private Location getLocAt(double right, double depth, double distance) {
@@ -456,32 +444,35 @@ public class Portal {
 
         Gate[] possibleGates = Gate.getGatesByControlBlock(idParent);
         Gate gate = null;
-        Blox buttonBlock = null;
+        RelativeBlockVector buttonVector = null;
 
         for (Gate possibility : possibleGates) {
-            if (gate == null) {
+            if ((gate == null) && (buttonVector == null)) {
                 RelativeBlockVector[] vectors = possibility.getControls();
                 RelativeBlockVector otherControl = null;
 
                 for (RelativeBlockVector vector : vectors) {
-                    topleft = parent.makeRelative(-vector.getRight(), vector.getDepth(), -vector.getDistance());
+                    Blox tl = parent.modRelative(-vector.getRight(), -vector.getDepth(), -vector.getDistance(), modX, 1, modZ);
 
                     if (gate == null) {
-                        if (possibility.matches(topleft, modX, modZ)) {
+                        if (possibility.matches(tl, modX, modZ)) {
                             gate = possibility;
+                            topleft = tl;
+
+                            if (otherControl != null) {
+                                buttonVector = otherControl;
+                            }
                         }
+                    } else if (otherControl != null) {
+                        buttonVector = vector;
                     }
 
-                    if ((gate != null) && (otherControl != null)) {
-                        buttonBlock = topleft.modRelative(otherControl.getRight(), otherControl.getDepth(), otherControl.getDistance(), modX, 0, modZ);
-                    } else {
-                        otherControl = vector;
-                    }
+                    otherControl = vector;
                 }
             }
         }
 
-        if (gate == null) {
+        if ((gate == null) || (buttonVector == null)) {
             return null;
         }
 
@@ -495,17 +486,17 @@ public class Portal {
         Portal portal = null;
 
         if (destName.length() > 0) {
-            portal = new Portal(topleft, modX, modZ, rotX, id, null, destName, name, null, true, network);
+            portal = new Portal(topleft, modX, modZ, rotX, id, null, destName, name, true, network, gate);
 
             Portal destination = getByName(destName);
             if (destination != null) {
                 portal.open();
             }
         } else {
-            Blox button = buttonBlock.modRelative(0, 0, 1, modX, 0, modZ);
+            Blox button = topleft.modRelative(buttonVector.getRight(), buttonVector.getDepth(), buttonVector.getDistance() + 1, modX, 1, modZ);
             button.setType(BUTTON);
 
-            portal = new Portal(topleft, modX, modZ, rotX, id, button, "", name, null, true, network);
+            portal = new Portal(topleft, modX, modZ, rotX, id, button, "", name, true, network, gate);
         }
 
         for (String originName : allPortals) {
@@ -556,8 +547,6 @@ public class Portal {
                 StringBuilder builder = new StringBuilder();
                 Blox sign = new Blox(portal.id.getBlock());
                 Blox button = portal.button;
-                Blox[] frame = portal.getFrame();
-                int frameCount = 0;
 
                 builder.append(portal.name);
                 builder.append(':');
@@ -573,14 +562,7 @@ public class Portal {
                 builder.append(':');
                 builder.append(portal.topLeft.toString());
                 builder.append(':');
-
-                for (Blox block : frame) {
-                    if (frameCount++ > 0) {
-                        builder.append(";");
-                    }
-                    builder.append(block.toString());
-                }
-
+                builder.append(portal.gate.getFilename());
                 builder.append(':');
                 builder.append(portal.isFixed() ? portal.getDestinationName() : "");
                 builder.append(':');
@@ -621,17 +603,9 @@ public class Portal {
                     Blox button = (split[2].length() > 0) ? new Blox(split[2]) : null;
                     int modX = Integer.parseInt(split[3]);
                     int modZ = Integer.parseInt(split[4]);
-                    ArrayList<Blox> frame = new ArrayList<Blox>();
                     float rotX = Float.parseFloat(split[5]);
                     Blox topLeft = new Blox(split[6]);
-                    String[] frameSplit = split[7].split(";");
-
-                    for (String pos : frameSplit) {
-                        frame.add(new Blox(pos));
-                    }
-
-                    Blox[] frameBlox = new Blox[0];
-                    frameBlox = frame.toArray(frameBlox);
+                    Gate gate = (split[7].contains(";")) ? Gate.getGateByName("nethergate.gate") : Gate.getGateByName(split[7]);
 
                     String fixed = (split.length > 8) ? split[8] : "";
                     String network = (split.length > 9) ? split[9] : Stargate.getDefaultNetwork();
@@ -640,7 +614,7 @@ public class Portal {
                         network = "";
                     }
 
-                    Portal portal = new Portal(topLeft, modX, modZ, rotX, sign, button, fixed, name, frameBlox, false, network);
+                    Portal portal = new Portal(topLeft, modX, modZ, rotX, sign, button, fixed, name, false, network, gate);
 
                     if (fixed.length() > 0) {
                         if (portal.isVerified()) {
