@@ -278,10 +278,16 @@ public class Gate {
         Gate gate = new Gate(file.getName(), layout, types);
 
         if (config.containsKey("portal-open")) {
-            gate.portalBlockOpen = Integer.getInteger(config.get("portal-open"));
+            try {
+                gate.portalBlockOpen = Integer.parseInt(config.get("portal-open"));
+            } catch (NumberFormatException ex) {
+            }
         }
         if (config.containsKey("portal-closed")) {
-            gate.portalBlockClosed = Integer.getInteger(config.get("portal-closed"));
+            try {
+                gate.portalBlockClosed = Integer.parseInt(config.get("portal-closed"));
+            } catch (NumberFormatException ex) {
+            }
         }
 
         if (gate.getControls().length != 2) {
