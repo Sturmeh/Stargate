@@ -1,7 +1,9 @@
 
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileWriter;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -31,7 +33,7 @@ public class Gate {
         HashMap<Integer, Character> reverse = new HashMap<Integer, Character>();
 
         try {
-            BufferedWriter bw = new BufferedWriter(new FileWriter("stargates/" + name + ".portal"));
+            BufferedWriter bw = new BufferedWriter(new FileWriter("stargates/" + name + ".gate"));
             for (Character type : types.keySet()) {
                 Integer value = types.get(type);
                 reverse.put(value, type);
@@ -76,8 +78,15 @@ public class Gate {
 
     public static void loadGates() {
         File dir = new File("stargates");
+        File[] files;
 
-        if (!dir.exists()) {
+        if (dir.exists()) {
+            files = dir.listFiles(new StargateFilenameFilter());
+        } else {
+            files = new File[0];
+        }
+
+        if (files.length == 0) {
             dir.mkdir();
             populateDefaults(dir);
         }
@@ -96,9 +105,16 @@ public class Gate {
 
         Gate gate = new Gate("nethergate", layout, types);
         gate.save();
+        gates.add(gate);
     }
 
     public static void saveGate() {
 
+    }
+    
+    static class StargateFilenameFilter implements FilenameFilter {
+        public boolean accept(File dir, String name) {
+            return name.endsWith(".gate");
+        }
     }
 }
