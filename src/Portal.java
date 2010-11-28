@@ -454,27 +454,34 @@ public class Portal {
             rotX = 0f;
         }
 
-        int modN = 1; // Negative modifier for sign offset.
-        Blox entry = null;
+        Gate[] possibleGates = Gate.getGatesByControlBlock(idParent);
+        Gate gate = null;
+        Blox buttonBlock = null;
 
-        while (Math.abs(modN) == 1) { // For 1, -1
-            entry = parent.makeRelative(modX * modN, -1, modZ * modN);
-            if (entry.getType() != AIR || entry.makeRelative(0, -1, 0).getType() != OBSIDIAN) {
-                modN -= 2;
-            } else {
-                break;
+        for (Gate possibility : possibleGates) {
+            if (gate == null) {
+                RelativeBlockVector[] vectors = possibility.getControls();
+                RelativeBlockVector otherControl = null;
+
+                for (RelativeBlockVector vector : vectors) {
+                    topleft = parent.makeRelative(-vector.getRight(), vector.getDepth(), -vector.getDistance());
+
+                    if (gate == null) {
+                        if (possibility.matches(topleft, modX, modZ)) {
+                            gate = possibility;
+                        }
+                    }
+
+                    if ((gate != null) && (otherControl != null)) {
+                        buttonBlock = topleft.modRelative(otherControl.getRight(), otherControl.getDepth(), otherControl.getDistance(), modX, 0, modZ);
+                    } else {
+                        otherControl = vector;
+                    }
+                }
             }
         }
 
-        if (Math.abs(modN) != 1) {
-            return null;
-        }
-
-        entry.setType(FIRE);
-        boolean isPortal = (entry.getType() == PORTAL);
-
-        entry.setType(AIR);
-        if (!isPortal) {
+        if (gate == null) {
             return null;
         }
 
@@ -483,12 +490,6 @@ public class Portal {
                 player.sendMessage(Colors.Red + Stargate.getCantAffordToNew());
             }
             return null;
-        }
-
-        if (modN > 0) {
-            topleft = entry.makeRelative(modX * 2, 3, modZ * 2);
-        } else {
-            topleft = entry.makeRelative(modX, 3, modZ);
         }
 
         Portal portal = null;
@@ -501,7 +502,7 @@ public class Portal {
                 portal.open();
             }
         } else {
-            Blox button = parent.makeRelative(modX * modN * 3 + modZ, 0, modZ * modN * 3 + -modX);
+            Blox button = buttonBlock.modRelative(0, 0, 1, modX, 0, modZ);
             button.setType(BUTTON);
 
             portal = new Portal(topleft, modX, modZ, rotX, id, button, "", name, null, true, network);
@@ -516,13 +517,6 @@ public class Portal {
         }
 
         saveAllGates();
-
-        for (String portalName : allPortals) {
-            Portal gate = getByName(portalName);
-            if (gate.isVerified()) {
-                gate.drawSign(true);
-            }
-        }
 
         return portal;
     }

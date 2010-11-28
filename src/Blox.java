@@ -36,6 +36,10 @@ public class Blox {
 		return new Location((double)this.x + x, (double)this.y + y, (double)this.z + z, rotX, rotY);
 	}
 
+        public Blox modRelative(int right, int depth, int distance, int modX, int modY, int modZ) {
+             return makeRelative(-right * modX + distance * modZ, depth, -right * modZ + -distance * modX);
+        }
+
 	public void setType(int type) {
 		etc.getServer().setBlockAt(type, x, y, z);
 	}

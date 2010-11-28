@@ -14,15 +14,15 @@ public class RelativeBlockVector {
         this.distance = distance;
     }
 
-    public int getX() {
+    public int getRight() {
         return right;
     }
 
-    public int getY() {
+    public int getDepth() {
         return depth;
     }
 
-    public int getZ() {
+    public int getDistance() {
         return distance;
     }
 }

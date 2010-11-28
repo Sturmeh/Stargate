@@ -127,25 +127,25 @@ public class Gate {
         return types.get('-');
     }
 
-    public boolean matches(Block topleft) {
-        return matches(new Blox(topleft));
+    public boolean matches(Block topleft, int modX, int modZ) {
+        return matches(new Blox(topleft), modX, modZ);
     }
 
-    public boolean matches(Blox topleft) {
+    public boolean matches(Blox topleft, int modX, int modZ) {
         for (int y = 0; y < layout.length; y++) {
             for (int x = 0; x < layout[y].length; x++) {
                 int id = layout[y][x];
 
                 if (id == ENTRANCE) {
-                    if (topleft.getType() != 0) {
+                    if (topleft.modRelative(-x, -y, 0, modX, 0, modZ).getType() != 0) {
                         return false;
                     }
                 } else if (id == CONTROL) {
-                    if (topleft.getType() != getControlBlock()) {
+                    if (topleft.modRelative(-x, -y, 0, modX, 0, modZ).getType() != getControlBlock()) {
                         return false;
                     }
                 } else if (id != ANYTHING) {
-                     if (topleft.getType() != id) {
+                     if (topleft.modRelative(-x, -y, 0, modX, 0, modZ).getType() != id) {
                          return false;
                      }
                 }
@@ -310,7 +310,7 @@ public class Gate {
     public static Gate[] getGatesByControlBlock(int type) {
         Gate[] result = new Gate[0];
         
-        controlBlocks.get(type).toArray(result);
+        result = controlBlocks.get(type).toArray(result);
 
         return result;
     }
