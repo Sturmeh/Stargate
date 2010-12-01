@@ -33,6 +33,7 @@ public class Gate {
     private int costToUse = 0;
     private int costToActivate = 0;
     private int costToCreate = 0;
+    private String costDestination = "none";
 
     private Gate(String filename, Integer[][] layout, HashMap<Character, Integer> types) {
         this.filename = filename;
@@ -72,10 +73,13 @@ public class Gate {
         try {
             BufferedWriter bw = new BufferedWriter(new FileWriter("stargates/" + filename));
 
-            bw.append("portal-open=" + portalBlockOpen);
-            bw.newLine();
-            bw.append("portal-closed=" + portalBlockClosed);
-            bw.newLine();
+            writeConfig(bw, "portal-open", portalBlockOpen);
+            writeConfig(bw, "portal-closed", portalBlockClosed);
+            writeConfig(bw, "cost-type", costType.toString());
+            writeConfig(bw, "cost-to-use", costToUse);
+            writeConfig(bw, "cost-to-create", costToCreate);
+            writeConfig(bw, "cost-to-activate", costToActivate);
+            writeConfig(bw, "cost-destination", costDestination);
 
             for (Character type : types.keySet()) {
                 Integer value = types.get(type);
@@ -118,6 +122,16 @@ public class Gate {
         } catch (IOException ex) {
             Stargate.log(Level.SEVERE, "Could not load Gate " + filename + " - " + ex.getMessage());
         }
+    }
+
+    private void writeConfig(BufferedWriter bw, String key, int value) throws IOException {
+        bw.append(String.format("%s=%d", key, value));
+        bw.newLine();
+    }
+
+    private void writeConfig(BufferedWriter bw, String key, String value) throws IOException {
+        bw.append(String.format("%s=%s", key, value));
+        bw.newLine();
     }
 
     public Integer[][] getLayout() {
@@ -337,6 +351,7 @@ public class Gate {
         gate.costToUse = readConfig(config, gate, file, "cost-to-use", gate.costToUse);
         gate.costToActivate = readConfig(config, gate, file, "cost-to-activate", gate.costToActivate);
         gate.costToCreate = readConfig(config, gate, file, "cost-to-create", gate.costToCreate);
+        gate.costDestination = readConfig(config, gate, file, "cost-destination", gate.costDestination);
 
         if (gate.getControls().length != 2) {
             Stargate.log(Level.SEVERE, "Could not load Gate " + file.getName() + " - Gates must have exactly 2 control points.");
@@ -346,13 +361,23 @@ public class Gate {
             return gate;
         }
     }
-    
+
     private static int readConfig(HashMap<String, String> config, Gate gate, File file, String key, int def) {
         if (config.containsKey(key)) {
             try {
                 return Integer.parseInt(config.get(key));
             } catch (NumberFormatException ex) {
                 Stargate.log(Level.WARNING, String.format("%s reading %s: %s is not numeric", ex.getClass().getName(), file, key));
+            }
+        }
+
+        return def;
+    }
+
+    private static String readConfig(HashMap<String, String> config, Gate gate, File file, String key, String def) {
+        if (config.containsKey(key)) {
+            if (!config.get(key).isEmpty()) {
+                return config.get(key);
             }
         }
 
