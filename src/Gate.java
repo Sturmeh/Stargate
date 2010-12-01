@@ -175,6 +175,7 @@ public class Gate {
         return true;
     }
 
+    @SuppressWarnings("unused")
     private static void registerGate(Gate gate) {
         gates.put(gate.getFilename(), gate);
 

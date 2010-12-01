@@ -48,7 +48,7 @@ public final class iProperty {
     }
 
     public Map<String, String> returnMap() throws Exception {
-        Map<String, String> map = new HashMap();
+        Map<String, String> map = new HashMap<String, String>();
         BufferedReader reader = new BufferedReader(new FileReader(this.fileName));
         String line;
         while ((line = reader.readLine()) != null) {
