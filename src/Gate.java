@@ -282,12 +282,14 @@ public class Gate {
             try {
                 gate.portalBlockOpen = Integer.parseInt(config.get("portal-open"));
             } catch (NumberFormatException ex) {
+                Stargate.log(Level.WARNING, "portal-open is not numeric in " + file);
             }
         }
         if (config.containsKey("portal-closed")) {
             try {
                 gate.portalBlockClosed = Integer.parseInt(config.get("portal-closed"));
             } catch (NumberFormatException ex) {
+                Stargate.log(Level.WARNING, "portal-closed is not numeric in " + file);
             }
         }
         if (config.containsKey("cost-type")) {
