@@ -28,7 +28,7 @@ public class Gate {
     private RelativeBlockVector[] controls = new RelativeBlockVector[0];
     private int portalBlockOpen = 90;
     private int portalBlockClosed = 0;
-    private CostType costType = CostType.None;
+    private PaymentMethod costType = PaymentMethod.None;
 
     private Gate(String filename, Integer[][] layout, HashMap<Character, Integer> types) {
         this.filename = filename;
@@ -148,7 +148,7 @@ public class Gate {
         return portalBlockClosed;
     }
 
-    public CostType getCostType() {
+    public PaymentMethod getCostType() {
         return costType;
     }
 
@@ -180,21 +180,16 @@ public class Gate {
         return true;
     }
 
-    @SuppressWarnings("unused")
     private static void registerGate(Gate gate) {
         gates.put(gate.getFilename(), gate);
 
-        RelativeBlockVector[] controls = gate.getControls();
+        int blockID = gate.getControlBlock();
 
-        for (RelativeBlockVector vector : controls) {
-            int id = gate.getControlBlock();
-
-            if (!controlBlocks.containsKey(id)) {
-                controlBlocks.put(id, new ArrayList<Gate>());
-            }
-
-            controlBlocks.get(id).add(gate);
+        if (!controlBlocks.containsKey(blockID)) {
+            controlBlocks.put(blockID, new ArrayList<Gate>());
         }
+
+        controlBlocks.get(blockID).add(gate);
     }
 
     private static Gate loadGate(File file) {
@@ -299,9 +294,9 @@ public class Gate {
             String val = config.get("cost-type");
 
             if ((val.equalsIgnoreCase("iconomy")) || (val.equalsIgnoreCase("coins"))) {
-                gate.costType = CostType.iConomy;
+                gate.costType = PaymentMethod.iConomy;
             } else if ((val.equalsIgnoreCase("blocks")) || (val.equalsIgnoreCase("items"))) {
-                gate.costType = CostType.Blocks;
+                gate.costType = PaymentMethod.Blocks;
             }
         }
 
@@ -373,10 +368,16 @@ public class Gate {
             return name.endsWith(".gate");
         }
     }
-    
-    public enum CostType {
+
+    public enum PaymentMethod {
         iConomy,
         Blocks,
         None
+    };
+
+    public enum CostFor {
+        Using,
+        Activating,
+        Creating
     };
 }

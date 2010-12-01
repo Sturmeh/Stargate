@@ -20,8 +20,6 @@ public class Stargate extends ThreadedPlugin {
     private static String cantAffordToNew = "You check your pocket for spare coin, sadly you find none...";
     private static String defaultNetwork = "central";
     private static SynchronousQueue<Portal> slip = new SynchronousQueue<Portal>();
-    private static int portalCostUse = 0;
-    private static int portalCostCreate = 0;
 
     public Stargate() {
         super("stargate");
@@ -89,10 +87,6 @@ public class Stargate extends ThreadedPlugin {
 
     public static String getCantAffordToNew() {
         return cantAffordToNew;
-    }
-
-    public static int getCostCreate() {
-        return portalCostCreate;
     }
 
     public static boolean deductCost(Player player, int cost) {
