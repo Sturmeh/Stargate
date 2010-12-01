@@ -39,11 +39,13 @@ public class Portal {
     private String network;
     private Gate gate;
     private boolean isOpen = false;
+    private String owner = "";
 
     private Portal(Blox topLeft, int modX, int modZ,
             float rotX, SignPost id, Blox button,
             String dest, String name,
-            boolean verified, String network, Gate gate) {
+            boolean verified, String network, Gate gate,
+            String owner) {
         this.topLeft = topLeft;
         this.modX = modX;
         this.modZ = modZ;
@@ -57,6 +59,7 @@ public class Portal {
         this.network = network;
         this.name = name;
         this.gate = gate;
+        this.owner = owner;
 
         this.register();
         if (verified) {
@@ -191,6 +194,10 @@ public class Portal {
 
     public Gate getGate() {
         return gate;
+    }
+
+    public String getOwner() {
+        return owner;
     }
 
     public void activate() {
@@ -487,7 +494,7 @@ public class Portal {
         Portal portal = null;
 
         if (destName.length() > 0) {
-            portal = new Portal(topleft, modX, modZ, rotX, id, null, destName, name, true, network, gate);
+            portal = new Portal(topleft, modX, modZ, rotX, id, null, destName, name, true, network, gate, player.getName());
 
             Portal destination = getByName(destName);
             if (destination != null) {
@@ -497,7 +504,7 @@ public class Portal {
             Blox button = topleft.modRelative(buttonVector.getRight(), buttonVector.getDepth(), buttonVector.getDistance() + 1, modX, 1, modZ);
             button.setType(BUTTON);
 
-            portal = new Portal(topleft, modX, modZ, rotX, id, button, "", name, true, network, gate);
+            portal = new Portal(topleft, modX, modZ, rotX, id, button, "", name, true, network, gate, player.getName());
         }
 
         for (String originName : allPortals) {
@@ -568,6 +575,8 @@ public class Portal {
                 builder.append(portal.isFixed() ? portal.getDestinationName() : "");
                 builder.append(':');
                 builder.append(portal.getNetwork());
+                builder.append(':');
+                builder.append(portal.getOwner());
 
                 bw.append(builder.toString());
                 bw.newLine();
@@ -610,12 +619,13 @@ public class Portal {
 
                     String fixed = (split.length > 8) ? split[8] : "";
                     String network = (split.length > 9) ? split[9] : Stargate.getDefaultNetwork();
+                    String owner = (split.length > 10) ? split[10] : "";
 
                     if (fixed.length() > 0) {
                         network = "";
                     }
 
-                    Portal portal = new Portal(topLeft, modX, modZ, rotX, sign, button, fixed, name, false, network, gate);
+                    Portal portal = new Portal(topLeft, modX, modZ, rotX, sign, button, fixed, name, false, network, gate, owner);
 
                     if (fixed.length() > 0) {
                         if (portal.isVerified()) {
