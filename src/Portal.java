@@ -438,8 +438,6 @@ public class Portal {
         Gate gate = null;
         RelativeBlockVector buttonVector = null;
 
-        Stargate.log("There are " + possibleGates.length + " possible gates that match " + idParent.getType());
-
         for (Gate possibility : possibleGates) {
             if ((gate == null) && (buttonVector == null)) {
                 RelativeBlockVector[] vectors = possibility.getControls();

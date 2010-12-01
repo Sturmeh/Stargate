@@ -28,6 +28,7 @@ public class Gate {
     private RelativeBlockVector[] controls = new RelativeBlockVector[0];
     private int portalBlockOpen = 90;
     private int portalBlockClosed = 0;
+    private CostType costType = CostType.None;
 
     private Gate(String filename, Integer[][] layout, HashMap<Character, Integer> types) {
         this.filename = filename;
@@ -145,6 +146,10 @@ public class Gate {
 
     public int getPortalBlockClosed() {
         return portalBlockClosed;
+    }
+
+    public CostType getCostType() {
+        return costType;
     }
 
     public boolean matches(Block topleft, int modX, int modZ) {
@@ -289,6 +294,15 @@ public class Gate {
             } catch (NumberFormatException ex) {
             }
         }
+        if (config.containsKey("cost-type")) {
+            String val = config.get("cost-type");
+
+            if ((val.equalsIgnoreCase("iconomy")) || (val.equalsIgnoreCase("coins"))) {
+                gate.costType = CostType.iConomy;
+            } else if ((val.equalsIgnoreCase("blocks")) || (val.equalsIgnoreCase("items"))) {
+                gate.costType = CostType.Blocks;
+            }
+        }
 
         if (gate.getControls().length != 2) {
             Stargate.log(Level.SEVERE, "Could not load Gate " + file.getName() + " - Gates must have exactly 2 control points.");
@@ -358,4 +372,10 @@ public class Gate {
             return name.endsWith(".gate");
         }
     }
+    
+    public enum CostType {
+        iConomy,
+        Blocks,
+        None
+    };
 }
