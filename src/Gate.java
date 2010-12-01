@@ -20,6 +20,7 @@ public class Gate {
     public static final int CONTROL = -3;
     private static HashMap<String, Gate> gates = new HashMap<String, Gate>();
     private static HashMap<Integer, ArrayList<Gate>> controlBlocks = new HashMap<Integer, ArrayList<Gate>>();
+
     private String filename;
     private Integer[][] layout;
     private HashMap<Character, Integer> types;
@@ -29,6 +30,9 @@ public class Gate {
     private int portalBlockOpen = 90;
     private int portalBlockClosed = 0;
     private PaymentMethod costType = PaymentMethod.None;
+    private int costToUse = 0;
+    private int costToActivate = 0;
+    private int costToCreate = 0;
 
     private Gate(String filename, Integer[][] layout, HashMap<Character, Integer> types) {
         this.filename = filename;
@@ -278,20 +282,9 @@ public class Gate {
 
         Gate gate = new Gate(file.getName(), layout, types);
 
-        if (config.containsKey("portal-open")) {
-            try {
-                gate.portalBlockOpen = Integer.parseInt(config.get("portal-open"));
-            } catch (NumberFormatException ex) {
-                Stargate.log(Level.WARNING, "portal-open is not numeric in " + file);
-            }
-        }
-        if (config.containsKey("portal-closed")) {
-            try {
-                gate.portalBlockClosed = Integer.parseInt(config.get("portal-closed"));
-            } catch (NumberFormatException ex) {
-                Stargate.log(Level.WARNING, "portal-closed is not numeric in " + file);
-            }
-        }
+        gate.portalBlockOpen = readConfig(config, gate, file, "portal-open", gate.portalBlockOpen);
+        gate.portalBlockClosed = readConfig(config, gate, file, "portal-closed", gate.portalBlockClosed);
+        
         if (config.containsKey("cost-type")) {
             String val = config.get("cost-type");
 
@@ -301,6 +294,9 @@ public class Gate {
                 gate.costType = PaymentMethod.Blocks;
             }
         }
+        gate.costToUse = readConfig(config, gate, file, "cost-to-use", gate.costToUse);
+        gate.costToActivate = readConfig(config, gate, file, "cost-to-activate", gate.costToActivate);
+        gate.costToCreate = readConfig(config, gate, file, "cost-to-create", gate.costToCreate);
 
         if (gate.getControls().length != 2) {
             Stargate.log(Level.SEVERE, "Could not load Gate " + file.getName() + " - Gates must have exactly 2 control points.");
@@ -309,6 +305,18 @@ public class Gate {
             gate.save(); // Updates format for version changes
             return gate;
         }
+    }
+    
+    private static int readConfig(HashMap<String, String> config, Gate gate, File file, String key, int def) {
+        if (config.containsKey(key)) {
+            try {
+                return Integer.parseInt(config.get(key));
+            } catch (NumberFormatException ex) {
+                Stargate.log(Level.WARNING, String.format("%s reading %s: %s is not numeric", ex.getClass().getName(), file, key));
+            }
+        }
+
+        return def;
     }
 
     public static void loadGates() {
