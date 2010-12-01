@@ -38,6 +38,7 @@ public class Portal {
     private ArrayList<String> destinations = new ArrayList<String>();
     private String network;
     private Gate gate;
+    private boolean isOpen = false;
 
     private Portal(Blox topLeft, int modX, int modZ,
             float rotX, SignPost id, Blox button,
@@ -85,7 +86,7 @@ public class Portal {
     }
 
     public boolean isOpen() {
-        return getEntrances()[0].getType() == gate.getPortalBlockOpen();
+        return isOpen;
     }
 
     public boolean open() {
@@ -103,6 +104,8 @@ public class Portal {
 
         player = openFor;
         manipGrace(true, true);
+
+        isOpen = true;
 
         return true;
     }
@@ -122,6 +125,8 @@ public class Portal {
             inside.setType(gate.getPortalBlockClosed());
         }
         player = null;
+
+        isOpen = false;
 
         deactivate();
     }
