@@ -152,8 +152,48 @@ public class Gate {
         return portalBlockClosed;
     }
 
-    public PaymentMethod getCostType() {
-        return costType;
+    public boolean deductCost(CostFor type, Player player) {
+        if (costType == PaymentMethod.Blocks) {
+            Stargate.log(Level.WARNING, "Blocks payment type is NYI");
+        }
+
+        if (costType == PaymentMethod.iConomy) {
+            if (!iData.iExist()) {
+                Stargate.log(Level.WARNING, "iConomy payment selected but iConomy does not exist");
+                return true;
+            }
+
+            int cost = 0;
+
+            switch (type) {
+                case Activating:
+                    cost = costToActivate;
+                    break;
+                case Creating:
+                    cost = costToCreate;
+                    break;
+                case Using:
+                    cost = costToUse;
+                    break;
+            }
+
+            if (cost == 0) {
+                iData icon = new iData();
+                int balance = icon.getBalance(player.getName());
+                String deducted = icon.settings.getString("money-deducted", "");
+                String money = icon.settings.getString("money-name", "");
+                
+                if (balance >= cost) {
+                    icon.setBalance(player.getName(), balance - cost);
+                    if (!deducted.isEmpty()) player.sendMessage(String.format(deducted, cost + money));
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        }
+
+        return true;
     }
 
     public boolean matches(Block topleft, int modX, int modZ) {

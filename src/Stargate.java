@@ -48,9 +48,6 @@ public class Stargate extends ThreadedPlugin {
 
         defaultNetwork = config.getString("default-gate-network", defaultNetwork).trim();
 
-        portalCostUse = config.getInt("cost-to-use", portalCostUse);
-        portalCostCreate = config.getInt("cost-to-create", portalCostCreate);
-
         Gate.loadGates();
         Portal.loadAllGates();
     }
@@ -89,22 +86,6 @@ public class Stargate extends ThreadedPlugin {
         return cantAffordToNew;
     }
 
-    public static boolean deductCost(Player player, int cost) {
-        if ((cost > 0) && (iData.iExist())) {
-            iData icon = new iData();
-            int balance = icon.getBalance(player.getName());
-
-            if (balance >= cost) {
-                icon.setBalance(player.getName(), balance - cost);
-                return true;
-            } else {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
     private void onButtonPressed(Player player, Portal gate) {
         Portal destination = gate.getDestination();
 
@@ -117,7 +98,7 @@ public class Stargate extends ThreadedPlugin {
                 if (!collisinMessage.isEmpty()) {
                     player.sendMessage(Colors.Red + collisinMessage);
                 }
-            } else if (deductCost(player, portalCostUse)) {
+            } else if (gate.getGate().deductCost(Gate.CostFor.Activating, player)) {
                 gate.open(player);
                 destination.open(player);
                 destination.setDestination(gate);
@@ -145,22 +126,26 @@ public class Stargate extends ThreadedPlugin {
 
             if ((portal != null) && (portal.isOpen())) {
                 if (portal.isOpenFor(player)) {
-                    Portal destination = portal.getDestination();
+                    if (portal.getGate().deductCost(Gate.CostFor.Using, player)) {
+                        Portal destination = portal.getDestination();
 
-                    if (!teleportMessage.isEmpty()) {
-                        player.sendMessage(Colors.Blue + teleportMessage);
-                    }
+                        if (!teleportMessage.isEmpty()) {
+                            player.sendMessage(Colors.Blue + teleportMessage);
+                        }
 
-                    Location exit = destination.getExit();
-                    exit.rotX = portal.getRotation() - player.getLocation().rotX + destination.getRotation() + 180;
+                        Location exit = destination.getExit();
+                        exit.rotX = portal.getRotation() - player.getLocation().rotX + destination.getRotation() + 180;
 
-                    player.teleportTo(exit);
+                        player.teleportTo(exit);
 
-                    if (!portal.isFixed()) {
-                        portal.close();
-                    }
-                    if ((!destination.isFixed()) && (destination.getDestinationName().equalsIgnoreCase(portal.getName()))) {
-                        destination.close();
+                        if (!portal.isFixed()) {
+                            portal.close();
+                        }
+                        if ((!destination.isFixed()) && (destination.getDestinationName().equalsIgnoreCase(portal.getName()))) {
+                            destination.close();
+                        }
+                    } else {
+                        player.sendMessage(Colors.Red + cantAffordToUse);
                     }
                 } else {
                     if (!noownersMessage.isEmpty()) {

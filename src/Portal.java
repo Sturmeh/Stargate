@@ -184,6 +184,10 @@ public class Portal {
         return gate.matches(topLeft, modX, modZ);
     }
 
+    public Gate getGate() {
+        return gate;
+    }
+
     public void activate() {
         destinations.clear();
 
@@ -468,7 +472,7 @@ public class Portal {
             return null;
         }
 
-        if (!Stargate.deductCost(player, Stargate.getCostCreate())) {
+        if (!gate.deductCost(Gate.CostFor.Creating, player)) {
             if (!Stargate.getCantAffordToNew().isEmpty()) {
                 player.sendMessage(Colors.Red + Stargate.getCantAffordToNew());
             }
