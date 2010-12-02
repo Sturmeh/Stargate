@@ -306,7 +306,7 @@ public class Portal {
         if (frame == null) {
             RelativeBlockVector[] border = gate.getBorder();
             RelativeBlockVector[] controls = gate.getControls();
-            frame = new Blox[border.length];
+            frame = new Blox[border.length + controls.length];
             int i = 0;
 
             for (RelativeBlockVector vector : border) {
@@ -623,7 +623,7 @@ public class Portal {
                     float rotX = Float.parseFloat(split[5]);
                     Blox topLeft = new Blox(split[6]);
                     Gate gate = (split[7].contains(";")) ? Gate.getGateByName("nethergate.gate") : Gate.getGateByName(split[7]);
-
+                    
                     String fixed = (split.length > 8) ? split[8] : "";
                     String network = (split.length > 9) ? split[9] : Stargate.getDefaultNetwork();
                     String owner = (split.length > 10) ? split[10] : "";
