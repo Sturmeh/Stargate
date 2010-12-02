@@ -110,6 +110,8 @@ public class Portal {
 
         isOpen = true;
 
+        etc.getServer().loadChunk(topLeft.getBlock());
+
         return true;
     }
 
