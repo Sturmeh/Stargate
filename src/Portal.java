@@ -305,10 +305,15 @@ public class Portal {
     public Blox[] getFrame() {
         if (frame == null) {
             RelativeBlockVector[] border = gate.getBorder();
+            RelativeBlockVector[] controls = gate.getControls();
             frame = new Blox[border.length];
             int i = 0;
 
             for (RelativeBlockVector vector : border) {
+                frame[i++] = getBlockAt(vector);
+            }
+
+            for (RelativeBlockVector vector : controls) {
                 frame[i++] = getBlockAt(vector);
             }
         }
