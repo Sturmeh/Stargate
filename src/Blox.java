@@ -40,6 +40,10 @@ public class Blox {
              return makeRelative(-right * modX + distance * modZ, -depth * modY, -right * modZ + -distance * modX);
         }
 
+        public Location modRelativeLoc(double right, double depth, double distance, float rotX, float rotY, int modX, int modY, int modZ) {
+            return makeRelativeLoc(0.5 + -right * modX + distance * modZ, depth, 0.5 + -right * modZ + -distance * modX, rotX, 0);
+        }
+
 	public void setType(int type) {
 		etc.getServer().setBlockAt(type, x, y, z);
 	}

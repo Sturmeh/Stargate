@@ -27,6 +27,7 @@ public class Gate {
     private RelativeBlockVector[] entrances = new RelativeBlockVector[0];
     private RelativeBlockVector[] border = new RelativeBlockVector[0];
     private RelativeBlockVector[] controls = new RelativeBlockVector[0];
+    private HashMap<RelativeBlockVector, Integer> exits = new HashMap<RelativeBlockVector, Integer>();
     private int portalBlockOpen = 90;
     private int portalBlockClosed = 0;
     private PaymentMethod costType = PaymentMethod.None;
@@ -47,6 +48,10 @@ public class Gate {
         ArrayList<RelativeBlockVector> entrances = new ArrayList<RelativeBlockVector>();
         ArrayList<RelativeBlockVector> border = new ArrayList<RelativeBlockVector>();
         ArrayList<RelativeBlockVector> controls = new ArrayList<RelativeBlockVector>();
+        RelativeBlockVector[] relativeExits = new RelativeBlockVector[layout[0].length];
+        int[] exitDepths = new int[layout[0].length];
+        int bottom = 0;
+        RelativeBlockVector lastExit = null;
 
         for (int y = 0; y < layout.length; y++) {
             for (int x = 0; x < layout[y].length; x++) {
@@ -54,12 +59,32 @@ public class Gate {
 
                 if (id == ENTRANCE) {
                     entrances.add(new RelativeBlockVector(x, y, 0));
+                    exitDepths[x] = y;
+                    bottom = y;
                 } else if (id == CONTROL) {
                     controls.add(new RelativeBlockVector(x, y, 0));
                 } else if (id != ANYTHING) {
                     border.add(new RelativeBlockVector(x, y, 0));
                 }
             }
+        }
+
+        for (int x = 0; x < exitDepths.length; x++) {
+            if (exitDepths[x] >= bottom - 3) {
+                lastExit = new RelativeBlockVector(x, exitDepths[x], 0);
+            }
+
+            relativeExits[x] = lastExit;
+        }
+
+        for (int x = relativeExits.length - 1; x >= 0; x--) {
+            if (relativeExits[x] != null) {
+                lastExit = relativeExits[x];
+            } else {
+                relativeExits[x] = lastExit;
+            }
+
+            if (exitDepths[x] > 0) this.exits.put(relativeExits[x], x);
         }
 
         this.entrances = entrances.toArray(this.entrances);
@@ -148,6 +173,10 @@ public class Gate {
 
     public RelativeBlockVector[] getControls() {
         return controls;
+    }
+
+    public HashMap<RelativeBlockVector, Integer> getExits() {
+        return exits;
     }
 
     public int getControlBlock() {

@@ -5,6 +5,8 @@ import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
+import java.util.Set;
+import java.util.Vector;
 import java.util.logging.Level;
 
 /**
@@ -40,6 +42,8 @@ public class Portal {
     private Gate gate;
     private boolean isOpen = false;
     private String owner = "";
+    private HashMap<Block, Integer> exits;
+    private HashMap<Integer, Block> reverseExits;
 
     private Portal(Blox topLeft, int modX, int modZ,
             float rotX, SignPost id, Blox button,
@@ -147,8 +151,22 @@ public class Portal {
         return fixed;
     }
 
-    public Location getExit() {
-        return getLocAt(1.5, -3.0, 1.0);
+    public Location getExit(Player player, Portal origin) {
+        Location playerloc = player.getLocation();
+        Block entrance = etc.getServer().getBlockAt((int)Math.floor(playerloc.x), (int)Math.floor(playerloc.y), (int)Math.floor(playerloc.z));
+        HashMap<Block, Integer> originExits = origin.getExits();
+        HashMap<Block, Integer> destExits = this.getExits();
+        int position = (int)(((float)originExits.get(entrance) / originExits.size()) * destExits.size());
+        Block exit = getReverseExits().get(position);
+
+        if (exit == null) {
+            Stargate.log("No position found for " + position);
+            Stargate.log(originExits.get(entrance) + " / " + originExits.size() + " * " + destExits.size());
+            return player.getLocation();
+        } else {
+            float rotation = origin.getRotation() - playerloc.rotX + this.getRotation() + 180;
+            return new Blox(exit).modRelativeLoc(0D, 0D, 1D, rotation, playerloc.rotY, modX, 1, modZ);
+        }
     }
 
     public float getRotation() {
@@ -319,6 +337,32 @@ public class Portal {
         }
 
         return frame;
+    }
+
+    public HashMap<Block, Integer> getExits() {
+        if (exits == null) {
+            exits = new HashMap<Block, Integer>();
+            reverseExits = new HashMap<Integer, Block>();
+            HashMap<RelativeBlockVector, Integer> relativeExits = gate.getExits();
+            Set<RelativeBlockVector> exitBlocks = relativeExits.keySet();
+
+            for (RelativeBlockVector vector : exitBlocks) {
+                Block block = getBlockAt(vector).getBlock();
+                Integer position = relativeExits.get(vector);
+                exits.put(block, position);
+                reverseExits.put(position, block);
+            }
+        }
+
+        return exits;
+    }
+
+    public HashMap<Integer, Block> getReverseExits() {
+        if (reverseExits == null) {
+            getExits();
+        }
+
+        return reverseExits;
     }
 
     @Override

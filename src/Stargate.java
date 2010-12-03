@@ -133,8 +133,7 @@ public class Stargate extends ThreadedPlugin {
                             player.sendMessage(Colors.Blue + teleportMessage);
                         }
 
-                        Location exit = destination.getExit();
-                        exit.rotX = portal.getRotation() - player.getLocation().rotX + destination.getRotation() + 180;
+                        Location exit = destination.getExit(player, portal);
 
                         player.teleportTo(exit);
 
