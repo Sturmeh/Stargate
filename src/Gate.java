@@ -225,10 +225,24 @@ public class Gate {
                 int balance = icon.getBalance(player.getName());
                 String deducted = icon.settings.getString("money-deducted", "");
                 String money = icon.settings.getString("money-name", "");
+                String receive = icon.settings.getString("money-receive", "");
                 
                 if (balance >= cost) {
+                    String[] recipient = costDestination.split(" ", 2);
                     icon.setBalance(player.getName(), balance - cost);
                     if (!deducted.isEmpty()) player.sendMessage(String.format(deducted, cost + money));
+
+                    if ((recipient.length > 0) && (recipient[0].equalsIgnoreCase("player"))) {
+                        if ((recipient.length > 1) && (icon.hasBalance(recipient[1]))) {
+                            balance = icon.getBalance(recipient[1]);
+                            icon.setBalance(recipient[1], balance);
+
+                            if (!receive.isEmpty()) player.sendMessage(String.format(receive, cost + money));
+                        } else {
+                            Stargate.log(Level.WARNING, "cost-destination set to player but specified player does not exist or was not defined");
+                        }
+                    }
+
                     return true;
                 } else {
                     return false;
