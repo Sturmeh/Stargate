@@ -22,7 +22,7 @@ public abstract class ThreadedPlugin extends SuperPlugin implements Runnable {
 		reloadConfig();
 		clock.start();
 		enableExtra();
-		log.log(Level.INFO, "{0} was enabled.", name);
+		log.info(name+" was enabled.");
 	}
 
 	@SuppressWarnings("deprecation")
@@ -31,7 +31,7 @@ public abstract class ThreadedPlugin extends SuperPlugin implements Runnable {
 		clock.stop();
 		clock = null;
 		disableExtra();
-		log.log(Level.INFO, "{0} was disabled.", name);
+		log.info(name+" was enabled.");
 	}
 	
 	public void setInterval(long interval) {

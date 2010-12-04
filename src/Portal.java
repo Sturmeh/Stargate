@@ -18,9 +18,9 @@ public class Portal {
     public static final int FIRE = 51;
     public static final int SIGN = 68;
     public static final int BUTTON = 77;
-    private static final HashMap<String, Portal> lookupBlocks = new HashMap<String, Portal>();
+    private static final HashMap<Block, Portal> lookupBlocks = new HashMap<Block, Portal>();
     private static final HashMap<String, Portal> lookupNames = new HashMap<String, Portal>();
-    private static final HashMap<String, Portal> lookupEntrances = new HashMap<String, Portal>();
+    private static final HashMap<Block, Portal> lookupEntrances = new HashMap<Block, Portal>();
     private static final ArrayList<String> allPortals = new ArrayList<String>();
     private Blox topLeft;
     private int modX;
@@ -389,16 +389,16 @@ public class Portal {
         lookupNames.remove(getName().toLowerCase());
 
         for (Blox block : getFrame()) {
-            lookupBlocks.remove(block.toString());
+            lookupBlocks.remove(block.getBlock());
         }
         // Include the sign and button
-        lookupBlocks.remove(new Blox(id.getBlock()).toString());
+        lookupBlocks.remove(id.getBlock());
         if (button != null) {
-            lookupBlocks.remove(button.toString());
+            lookupBlocks.remove(button.getBlock());
         }
 
         for (Blox entrance : getEntrances()) {
-            lookupEntrances.remove(entrance.toString());
+            lookupEntrances.remove(entrance.getBlock());
         }
 
         allPortals.remove(getName());
@@ -439,16 +439,16 @@ public class Portal {
         lookupNames.put(getName().toLowerCase(), this);
 
         for (Blox block : getFrame()) {
-            lookupBlocks.put(block.toString(), this);
+            lookupBlocks.put(block.getBlock(), this);
         }
         // Include the sign and button
-        lookupBlocks.put(new Blox(id.getBlock()).toString(), this);
+        lookupBlocks.put(id.getBlock(), this);
         if (button != null) {
-            lookupBlocks.put(button.toString(), this);
+            lookupBlocks.put(button.getBlock(), this);
         }
 
         for (Blox entrance : getEntrances()) {
-            lookupEntrances.put(entrance.toString(), this);
+            lookupEntrances.put(entrance.getBlock(), this);
         }
 
         allPortals.add(getName());
@@ -571,23 +571,15 @@ public class Portal {
     }
 
     public static Portal getByEntrance(Location location) {
-        return getByEntrance(new Blox(location));
+        return getByEntrance(new Blox(location).getBlock());
     }
 
     public static Portal getByEntrance(Block block) {
-        return getByEntrance(new Blox(block));
-    }
-
-    public static Portal getByEntrance(Blox block) {
-        return lookupEntrances.get(block.toString());
+        return lookupEntrances.get(block);
     }
 
     public static Portal getByBlock(Block block) {
-        return getByBlock(new Blox(block));
-    }
-
-    public static Portal getByBlock(Blox block) {
-        return lookupBlocks.get(block.toString());
+        return lookupBlocks.get(block);
     }
 
     public static void saveAllGates() {
