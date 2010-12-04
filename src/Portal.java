@@ -163,21 +163,49 @@ public class Portal {
     }
 
     public Location getExit(Player player, Portal origin) {
-        Location playerloc = player.getLocation();
-        Block entrance = etc.getServer().getBlockAt((int)Math.floor(playerloc.x), (int)Math.floor(playerloc.y), (int)Math.floor(playerloc.z));
+        Location traveller = player.getLocation();
+        Location exit = getExit(traveller, origin);
+
+        exit.rotX = origin.getRotation() - traveller.rotX + this.getRotation() + 180;
+
+        return exit;
+    }
+
+    public Location getExit(BaseVehicle vehicle, Portal origin) {
+        Location traveller = new Location(vehicle.getX(), vehicle.getY(), vehicle.getZ());
+        Location exit = getExit(traveller, origin);
+
+        double motX = vehicle.getMotionX();
+        double motZ = vehicle.getMotionZ();
+
+        int xx = origin.modX * -this.modX;
+        int xz = origin.modX * -this.modZ;
+        int zx = origin.modZ * -this.modX;
+        int zz = origin.modZ * -this.modZ;
+
+        vehicle.setMotionX(motX * xx + motZ * xz);
+        vehicle.setMotionZ(motX * xz + motZ * zz);
+
+        return exit;
+    }
+
+    public Location getExit(Location traveller, Portal origin) {
+        Block entrance = etc.getServer().getBlockAt((int)Math.floor(traveller.x), (int)Math.floor(traveller.y), (int)Math.floor(traveller.z));
         HashMap<Block, Integer> originExits = origin.getExits();
         HashMap<Block, Integer> destExits = this.getExits();
-        int position = (int)(((float)originExits.get(entrance) / originExits.size()) * destExits.size());
-        Block exit = getReverseExits().get(position);
 
-        if (exit == null) {
-            Stargate.log("No position found for " + position);
-            Stargate.log(originExits.get(entrance) + " / " + originExits.size() + " * " + destExits.size());
-            return player.getLocation();
-        } else {
-            float rotation = origin.getRotation() - playerloc.rotX + this.getRotation() + 180;
-            return new Blox(exit).modRelativeLoc(0D, 0D, 1D, rotation, playerloc.rotY, modX, 1, modZ);
+        if (originExits.containsKey(entrance)) {
+            int position = (int)(((float)originExits.get(entrance) / originExits.size()) * destExits.size());
+            Block exit = getReverseExits().get(position);
+
+            if (exit != null) {
+                return new Blox(exit).modRelativeLoc(0D, 0D, 1D, traveller.rotX, traveller.rotY, modX, 1, modZ);
+            }
         }
+
+        Stargate.log(Level.WARNING, "No position found calculting route from " + this + " to " + origin);
+        Stargate.log(originExits.get(entrance) + " / " + originExits.size() + " * " + destExits.size());
+        return traveller;
     }
 
     public float getRotation() {

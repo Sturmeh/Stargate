@@ -33,6 +33,7 @@ public class Stargate extends ThreadedPlugin {
         etc.getLoader().addListener(PluginLoader.Hook.COMPLEX_BLOCK_CHANGE, listener, this, PluginListener.Priority.MEDIUM);
         etc.getLoader().addListener(PluginLoader.Hook.COMPLEX_BLOCK_SEND, listener, this, PluginListener.Priority.MEDIUM);
         etc.getLoader().addListener(PluginLoader.Hook.BLOCK_PHYSICS, listener, this, PluginListener.Priority.MEDIUM);
+        etc.getLoader().addListener(PluginLoader.Hook.VEHICLE_POSITIONCHANGE, listener, this, PluginListener.Priority.MEDIUM);
         setInterval(160); // 8 seconds.
     }
 
@@ -270,6 +271,44 @@ public class Stargate extends ThreadedPlugin {
             }
 
             return false;
+        }
+
+        @Override
+        public void onVehiclePositionChange(BaseVehicle vehicle, int x, int y, int z) {
+            Player player = vehicle.getPassenger();
+
+            if (player != null) {
+                Portal portal = Portal.getByEntrance(etc.getServer().getBlockAt(x, y, z));
+
+                if ((portal != null) && (portal.isOpen())) {
+                    if (portal.isOpenFor(player)) {
+                        if (portal.getGate().deductCost(Gate.CostFor.Using, player)) {
+                            Portal destination = portal.getDestination();
+
+                            if (!teleportMessage.isEmpty()) {
+                                player.sendMessage(Colors.Blue + teleportMessage);
+                            }
+
+                            Location exit = destination.getExit(vehicle, portal);
+
+                            vehicle.teleportTo(exit);
+
+                            if (!portal.isFixed()) {
+                                portal.close();
+                            }
+                            if ((!destination.isFixed()) && (destination.getDestinationName().equalsIgnoreCase(portal.getName()))) {
+                                destination.close();
+                            }
+                        } else {
+                            player.sendMessage(Colors.Red + cantAffordToUse);
+                        }
+                    } else {
+                        if (!noownersMessage.isEmpty()) {
+                            player.sendMessage(Colors.Red + noownersMessage);
+                        }
+                    }
+                }
+            }
         }
     }
 }
