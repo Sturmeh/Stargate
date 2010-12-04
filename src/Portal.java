@@ -183,7 +183,7 @@ public class Portal {
         int zx = origin.modZ * -this.modX;
         int zz = origin.modZ * -this.modZ;
 
-        vehicle.setMotionX(motX * xx + motZ * xz);
+        vehicle.setMotionX(motX * xx + motZ * zx);
         vehicle.setMotionZ(motX * xz + motZ * zz);
 
         return exit;
