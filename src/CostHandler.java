@@ -49,7 +49,6 @@ class CostHandler {
             }
 
             array.add(new Item(itemid, amount));
-            Stargate.log(new Item(itemid, amount).toString());
         }
 
         items = array.toArray(items);

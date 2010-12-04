@@ -29,6 +29,7 @@ public class Stargate extends ThreadedPlugin {
         etc.getLoader().addListener(PluginLoader.Hook.PLAYER_MOVE, listener, this, PluginListener.Priority.MEDIUM);
         etc.getLoader().addListener(PluginLoader.Hook.BLOCK_RIGHTCLICKED, listener, this, PluginListener.Priority.MEDIUM);
         etc.getLoader().addListener(PluginLoader.Hook.BLOCK_DESTROYED, listener, this, PluginListener.Priority.MEDIUM);
+        etc.getLoader().addListener(PluginLoader.Hook.BLOCK_PLACE, listener, this, PluginListener.Priority.MEDIUM);
         etc.getLoader().addListener(PluginLoader.Hook.COMPLEX_BLOCK_CHANGE, listener, this, PluginListener.Priority.MEDIUM);
         etc.getLoader().addListener(PluginLoader.Hook.COMPLEX_BLOCK_SEND, listener, this, PluginListener.Priority.MEDIUM);
         etc.getLoader().addListener(PluginLoader.Hook.BLOCK_PHYSICS, listener, this, PluginListener.Priority.MEDIUM);
@@ -174,15 +175,16 @@ public class Stargate extends ThreadedPlugin {
             if (block.getType() != Portal.SIGN && block.getType() != Portal.OBSIDIAN && block.getType() != Portal.BUTTON) {
                 return false;
             }
-            Portal gate = Portal.getByBlock(block);
+            Portal portal = Portal.getByBlock(block);
+            if (portal == null) portal = Portal.getByEntrance(block);
 
-            if (gate == null) {
+            if (portal == null) {
                 return false;
             }
 
             if ((block.getType() == Portal.BUTTON) && (block.getStatus() == 0)) {
                 if (player.canUseCommand("/stargateuse")) {
-                    onButtonPressed(player, gate);
+                    onButtonPressed(player, portal);
                 }
 
                 return true;
@@ -194,7 +196,7 @@ public class Stargate extends ThreadedPlugin {
                 if (!player.canUseCommand("/stargatedestroy")) {
                     return true;
                 }
-                gate.unregister();
+                portal.unregister();
                 if (!destroyzMessage.isEmpty()) {
                     player.sendMessage(Colors.Red + destroyzMessage);
                 }
@@ -254,6 +256,17 @@ public class Stargate extends ThreadedPlugin {
         public boolean onBlockPhysics(Block block, boolean placed) {
             if (block.getType() == 90) {
                 return Portal.getByEntrance(block) != null;
+            }
+
+            return false;
+        }
+
+        @Override
+        public boolean onBlockPlace(Player player, Block blockPlaced, Block blockClicked, Item itemInHand) {
+            Portal portal = Portal.getByEntrance(blockPlaced);
+
+            if (portal != null) {
+                return !player.canUseCommand("/stargatecreate");
             }
 
             return false;

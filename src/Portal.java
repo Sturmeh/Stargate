@@ -150,6 +150,18 @@ public class Portal {
         return fixed;
     }
 
+    public boolean isPowered() {
+        RelativeBlockVector[] controls = gate.getControls();
+
+        for (RelativeBlockVector vector : controls) {
+            if (getBlockAt(vector).getBlock().isPowered()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public Location getExit(Player player, Portal origin) {
         Location playerloc = player.getLocation();
         Block entrance = etc.getServer().getBlockAt((int)Math.floor(playerloc.x), (int)Math.floor(playerloc.y), (int)Math.floor(playerloc.z));
