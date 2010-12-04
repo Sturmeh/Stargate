@@ -222,10 +222,10 @@ public class Portal {
     public void activate() {
         destinations.clear();
 
-        for (String name : allPortals) {
-            Portal portal = getByName(name);
-            if ((portal.getNetwork().equalsIgnoreCase(network)) && (!name.equalsIgnoreCase(getName()))) {
-                destinations.add(name);
+        for (String dest : allPortals) {
+            Portal portal = getByName(dest);
+            if ((portal.getNetwork().equalsIgnoreCase(network)) && (!dest.equalsIgnoreCase(getName()))) {
+                destinations.add(dest);
             }
         }
     }
@@ -263,7 +263,7 @@ public class Portal {
         drawSign(true);
     }
 
-    public void drawSign(boolean update) {
+    public final void drawSign(boolean update) {
         id.setText(0, "--" + name + "--");
         int max = destinations.size() - 1;
         int done = 0;
@@ -388,8 +388,8 @@ public class Portal {
     public void unregister() {
         lookupNames.remove(getName().toLowerCase());
 
-        for (Blox frame : getFrame()) {
-            lookupBlocks.remove(frame.toString());
+        for (Blox block : getFrame()) {
+            lookupBlocks.remove(block.toString());
         }
         // Include the sign and button
         lookupBlocks.remove(new Blox(id.getBlock()).toString());
@@ -435,15 +435,11 @@ public class Portal {
         return topLeft.modRelative(right, depth, distance, modX, 1, modZ);
     }
 
-    private Location getLocAt(double right, double depth, double distance) {
-        return topLeft.makeRelativeLoc(0.5 + -right * modX + distance * modZ, depth, 0.5 + -right * modZ + -distance * modX, rotX, 0);
-    }
-
     private void register() {
         lookupNames.put(getName().toLowerCase(), this);
 
-        for (Blox frame : getFrame()) {
-            lookupBlocks.put(frame.toString(), this);
+        for (Blox block : getFrame()) {
+            lookupBlocks.put(block.toString(), this);
         }
         // Include the sign and button
         lookupBlocks.put(new Blox(id.getBlock()).toString(), this);

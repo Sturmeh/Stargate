@@ -7,8 +7,7 @@ import java.util.concurrent.SynchronousQueue;
  * @author Dinnerbone
  */
 public class Stargate extends ThreadedPlugin {
-
-    public final Listener listener = new Listener();
+    private final Listener listener = new Listener();
     private static String gateSaveLocation = "stargates.txt";
     private static String teleportMessage = "You feel weightless as the portal carries you to new land...";
     private static String registerMessage = "You feel a slight tremble in the ground around the portal...";
@@ -25,9 +24,10 @@ public class Stargate extends ThreadedPlugin {
         super("stargate");
     }
 
+    @Override
     public void initializeExtra() {
         etc.getLoader().addListener(PluginLoader.Hook.PLAYER_MOVE, listener, this, PluginListener.Priority.MEDIUM);
-        etc.getLoader().addListener(PluginLoader.Hook.BLOCK_CREATED, listener, this, PluginListener.Priority.MEDIUM);
+        etc.getLoader().addListener(PluginLoader.Hook.BLOCK_RIGHTCLICKED, listener, this, PluginListener.Priority.MEDIUM);
         etc.getLoader().addListener(PluginLoader.Hook.BLOCK_DESTROYED, listener, this, PluginListener.Priority.MEDIUM);
         etc.getLoader().addListener(PluginLoader.Hook.COMPLEX_BLOCK_CHANGE, listener, this, PluginListener.Priority.MEDIUM);
         etc.getLoader().addListener(PluginLoader.Hook.COMPLEX_BLOCK_SEND, listener, this, PluginListener.Priority.MEDIUM);
@@ -35,6 +35,7 @@ public class Stargate extends ThreadedPlugin {
         setInterval(160); // 8 seconds.
     }
 
+    @Override
     public void reloadConfig() {
         gateSaveLocation = config.getString("portal-save-location", gateSaveLocation);
         teleportMessage = config.getString("teleport-message", teleportMessage);
@@ -52,6 +53,7 @@ public class Stargate extends ThreadedPlugin {
         Portal.loadAllGates();
     }
 
+    @Override
     public synchronized void doWork() {
         Portal open = Portal.getNextOpen();
 
@@ -119,7 +121,7 @@ public class Stargate extends ThreadedPlugin {
     }
 
     private class Listener extends PluginListener {
-
+        @Override
         public void onPlayerMove(Player player, Location from, Location to) {
             threadSafeOperation();
             Portal portal = Portal.getByEntrance(to);
@@ -154,6 +156,20 @@ public class Stargate extends ThreadedPlugin {
             }
         }
 
+        @Override
+        public void onBlockRightClicked(Player player, Block block, Item item) {
+            if ((block.blockType == Block.Type.SignPost) || (block.blockType == Block.Type.WallSign)) {
+                Portal portal = Portal.getByBlock(block);
+
+                if (portal != null) {
+                    if ((!portal.isOpen()) && (!portal.isFixed())) {
+                        portal.cycleDestination();
+                    }
+                }
+            }
+        }
+
+        @Override
         public boolean onBlockDestroy(Player player, Block block) {
             if (block.getType() != Portal.SIGN && block.getType() != Portal.OBSIDIAN && block.getType() != Portal.BUTTON) {
                 return false;
@@ -187,6 +203,7 @@ public class Stargate extends ThreadedPlugin {
             return false;
         }
 
+        @Override
         public boolean onComplexBlockChange(Player player, ComplexBlock signBlock) {
             if (!(signBlock instanceof Sign)) {
                 return false;
@@ -206,6 +223,7 @@ public class Stargate extends ThreadedPlugin {
             return false;
         }
 
+        @Override
         public boolean onSendComplexBlock(Player player, ComplexBlock signBlock) {
             if (!(signBlock instanceof Sign)) {
                 return false;
@@ -232,30 +250,7 @@ public class Stargate extends ThreadedPlugin {
             return false;
         }
 
-        public boolean onBlockCreate(Player player, Block blockPlaced, Block blockClicked, int itemInHand) {
-            if ((blockClicked.getType() == Portal.SIGN) || (blockClicked.getType() == Portal.BUTTON)) {
-                Portal portal = Portal.getByBlock(blockClicked);
-
-                if (!player.canUseCommand("/stargateuse")) {
-                    return true;
-                }
-
-                if (portal != null) {
-                    if (blockClicked.getType() == Portal.SIGN) {
-                        if ((!portal.isOpen()) && (!portal.isFixed())) {
-                            portal.cycleDestination();
-                        }
-                    } else if (blockClicked.getType() == Portal.BUTTON) {
-                        onButtonPressed(player, portal);
-                    }
-
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
+        @Override
         public boolean onBlockPhysics(Block block, boolean placed) {
             if (block.getType() == 90) {
                 return Portal.getByEntrance(block) != null;

@@ -1,3 +1,6 @@
+
+import java.util.logging.Level;
+
 /**
  * ThreadedPlugin.java - Threaded Plug-in template for hey0's minecraft mod.
  * @author Shaun (sturmeh)
@@ -12,21 +15,23 @@ public abstract class ThreadedPlugin extends SuperPlugin implements Runnable {
 
 	public synchronized void doWork() {}
 	
+        @Override
 	public void enable() {
 		if (clock == null)
 			clock = new Thread(this);
 		reloadConfig();
 		clock.start();
 		enableExtra();
-		log.info(name+" was enabled.");
+		log.log(Level.INFO, "{0} was enabled.", name);
 	}
 
 	@SuppressWarnings("deprecation")
+        @Override
 	public void disable() {
 		clock.stop();
 		clock = null;
 		disableExtra();
-		log.info(name+" was disabled.");
+		log.log(Level.INFO, "{0} was disabled.", name);
 	}
 	
 	public void setInterval(long interval) {

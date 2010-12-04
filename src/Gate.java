@@ -45,9 +45,9 @@ public class Gate {
     }
 
     private void populateCoordinates() {
-        ArrayList<RelativeBlockVector> entrances = new ArrayList<RelativeBlockVector>();
-        ArrayList<RelativeBlockVector> border = new ArrayList<RelativeBlockVector>();
-        ArrayList<RelativeBlockVector> controls = new ArrayList<RelativeBlockVector>();
+        ArrayList<RelativeBlockVector> entranceList = new ArrayList<RelativeBlockVector>();
+        ArrayList<RelativeBlockVector> borderList = new ArrayList<RelativeBlockVector>();
+        ArrayList<RelativeBlockVector> controlList = new ArrayList<RelativeBlockVector>();
         RelativeBlockVector[] relativeExits = new RelativeBlockVector[layout[0].length];
         int[] exitDepths = new int[layout[0].length];
         int bottom = 0;
@@ -58,13 +58,13 @@ public class Gate {
                 Integer id = layout[y][x];
 
                 if (id == ENTRANCE) {
-                    entrances.add(new RelativeBlockVector(x, y, 0));
+                    entranceList.add(new RelativeBlockVector(x, y, 0));
                     exitDepths[x] = y;
                     bottom = y;
                 } else if (id == CONTROL) {
-                    controls.add(new RelativeBlockVector(x, y, 0));
+                    controlList.add(new RelativeBlockVector(x, y, 0));
                 } else if (id != ANYTHING) {
-                    border.add(new RelativeBlockVector(x, y, 0));
+                    borderList.add(new RelativeBlockVector(x, y, 0));
                 }
             }
         }
@@ -87,9 +87,9 @@ public class Gate {
             if (exitDepths[x] > 0) this.exits.put(relativeExits[x], x);
         }
 
-        this.entrances = entrances.toArray(this.entrances);
-        this.border = border.toArray(this.border);
-        this.controls = controls.toArray(this.controls);
+        this.entrances = entranceList.toArray(this.entrances);
+        this.border = borderList.toArray(this.border);
+        this.controls = controlList.toArray(this.controls);
     }
     
     public void save() {
