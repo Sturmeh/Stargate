@@ -1,4 +1,5 @@
 
+import java.util.HashMap;
 import java.util.concurrent.SynchronousQueue;
 
 /**
@@ -19,6 +20,7 @@ public class Stargate extends ThreadedPlugin {
     private static String cantAffordToNew = "You check your pocket for spare coin, sadly you find none...";
     private static String defaultNetwork = "central";
     private static SynchronousQueue<Portal> slip = new SynchronousQueue<Portal>();
+    private HashMap<Integer, Location> vehicles = new HashMap<Integer, Location>();
 
     public Stargate() {
         super("stargate");
@@ -137,9 +139,7 @@ public class Stargate extends ThreadedPlugin {
                             player.sendMessage(Colors.Blue + teleportMessage);
                         }
 
-                        Location exit = destination.getExit(player, portal);
-
-                        player.teleportTo(exit);
+                        destination.teleport(player, portal);
 
                         if (!portal.isFixed()) {
                             portal.close();
@@ -277,6 +277,13 @@ public class Stargate extends ThreadedPlugin {
         public void onVehiclePositionChange(BaseVehicle vehicle, int x, int y, int z) {
             Player player = vehicle.getPassenger();
 
+            Location lookup = vehicles.get(vehicle.getId());
+
+            if (lookup != null) {
+                vehicle.setMotion(lookup.x, lookup.y, lookup.z);
+                vehicles.remove(vehicle.getId());
+            }
+
             if (player != null) {
                 Portal portal = Portal.getByEntrance(etc.getServer().getBlockAt(x, y, z));
 
@@ -289,9 +296,7 @@ public class Stargate extends ThreadedPlugin {
                                 player.sendMessage(Colors.Blue + teleportMessage);
                             }
 
-                            Location exit = destination.getExit(vehicle, portal);
-
-                            vehicle.teleportTo(exit);
+                            vehicles.put(vehicle.getId(), destination.teleport(vehicle, portal));
 
                             if (!portal.isFixed()) {
                                 portal.close();

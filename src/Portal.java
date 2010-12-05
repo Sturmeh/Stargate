@@ -162,31 +162,32 @@ public class Portal {
         return false;
     }
 
-    public Location getExit(Player player, Portal origin) {
+    public void teleport(Player player, Portal origin) {
         Location traveller = player.getLocation();
         Location exit = getExit(traveller, origin);
 
         exit.rotX = origin.getRotation() - traveller.rotX + this.getRotation() + 180;
 
-        return exit;
+        player.teleportTo(exit);
     }
 
-    public Location getExit(BaseVehicle vehicle, Portal origin) {
+    public Location teleport(BaseVehicle vehicle, Portal origin) {
         Location traveller = new Location(vehicle.getX(), vehicle.getY(), vehicle.getZ());
         Location exit = getExit(traveller, origin);
 
         double motX = vehicle.getMotionX();
+        double motY = vehicle.getMotionY();
         double motZ = vehicle.getMotionZ();
 
-        int xx = origin.modX * -this.modX;
-        int xz = origin.modX * -this.modZ;
-        int zx = origin.modZ * -this.modX;
-        int zz = origin.modZ * -this.modZ;
+        int xx = origin.modX * this.modX;
+        int xz = origin.modX * this.modZ;
+        int zx = origin.modZ * this.modX;
+        int zz = origin.modZ * this.modZ;
 
-        vehicle.setMotionX(motX * xx + motZ * zx);
-        vehicle.setMotionZ(motX * xz + motZ * zz);
+        vehicle.setMotion(0, 0, 0);
+        vehicle.teleportTo(exit);
 
-        return exit;
+        return new Location((motX * zz + motZ * xz) * 1, motY, (motX * zx + motZ * xx) * -1);
     }
 
     public Location getExit(Location traveller, Portal origin) {
