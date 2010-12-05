@@ -100,7 +100,7 @@ public class Portal {
     }
 
     public boolean open(Player openFor) {
-        return open(openFor, force);
+        return open(openFor, false);
     }
 
     public boolean open(Player openFor, boolean force) {
