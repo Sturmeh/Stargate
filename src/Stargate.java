@@ -136,17 +136,19 @@ public class Stargate extends ThreadedPlugin {
                     if (portal.getGate().deductCost(Gate.CostFor.Using, player)) {
                         Portal destination = portal.getDestination();
 
-                        if (!teleportMessage.isEmpty()) {
-                            player.sendMessage(Colors.Blue + teleportMessage);
-                        }
+                        if (destination != null) {
+                            if (!teleportMessage.isEmpty()) {
+                                player.sendMessage(Colors.Blue + teleportMessage);
+                            }
 
-                        destination.teleport(player, portal);
+                            destination.teleport(player, portal);
 
-                        if (!portal.isFixed()) {
-                            portal.close();
-                        }
-                        if ((!destination.isFixed()) && (destination.getDestinationName().equalsIgnoreCase(portal.getName()))) {
-                            destination.close();
+                            if (!portal.isFixed()) {
+                                portal.close();
+                            }
+                            if ((!destination.isFixed()) && (destination.getDestinationName().equalsIgnoreCase(portal.getName()))) {
+                                destination.close();
+                            }
                         }
                     } else {
                         player.sendMessage(Colors.Red + cantAffordToUse);
@@ -293,17 +295,19 @@ public class Stargate extends ThreadedPlugin {
                         if (portal.getGate().deductCost(Gate.CostFor.Using, player)) {
                             Portal destination = portal.getDestination();
 
-                            if (!teleportMessage.isEmpty()) {
-                                player.sendMessage(Colors.Blue + teleportMessage);
-                            }
+                            if (destination != null) {
+                                if (!teleportMessage.isEmpty()) {
+                                    player.sendMessage(Colors.Blue + teleportMessage);
+                                }
 
-                            vehicles.put(vehicle.getId(), destination.teleport(vehicle, portal));
+                                vehicles.put(vehicle.getId(), destination.teleport(vehicle, portal));
 
-                            if (!portal.isFixed()) {
-                                portal.close();
-                            }
-                            if ((!destination.isFixed()) && (destination.getDestinationName().equalsIgnoreCase(portal.getName()))) {
-                                destination.close();
+                                if (!portal.isFixed()) {
+                                    portal.close();
+                                }
+                                if ((!destination.isFixed()) && (destination.getDestinationName().equalsIgnoreCase(portal.getName()))) {
+                                    destination.close();
+                                }
                             }
                         } else {
                             player.sendMessage(Colors.Red + cantAffordToUse);
