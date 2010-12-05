@@ -36,6 +36,7 @@ public class Stargate extends ThreadedPlugin {
         etc.getLoader().addListener(PluginLoader.Hook.COMPLEX_BLOCK_SEND, listener, this, PluginListener.Priority.MEDIUM);
         etc.getLoader().addListener(PluginLoader.Hook.BLOCK_PHYSICS, listener, this, PluginListener.Priority.MEDIUM);
         etc.getLoader().addListener(PluginLoader.Hook.VEHICLE_POSITIONCHANGE, listener, this, PluginListener.Priority.MEDIUM);
+        etc.getLoader().addListener(PluginLoader.Hook.FLOW, listener, this, PluginListener.Priority.MEDIUM);
         setInterval(160); // 8 seconds.
     }
 
@@ -314,6 +315,17 @@ public class Stargate extends ThreadedPlugin {
                     }
                 }
             }
+        }
+
+        @Override
+        public boolean onFlow(Block blockFrom, Block blockTo) {
+            Portal portal = Portal.getByEntrance(blockFrom);
+
+            if (portal != null) {
+                return blockTo.getY() == blockFrom.getY();
+            }
+
+            return false;
         }
     }
 }

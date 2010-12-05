@@ -92,7 +92,7 @@ public class Portal {
     }
 
     public boolean isOpen() {
-        return isOpen;
+        return isOpen || isFixed();
     }
 
     public boolean open() {
@@ -100,7 +100,11 @@ public class Portal {
     }
 
     public boolean open(Player openFor) {
-        if (isOpen()) {
+        return open(openFor, force);
+    }
+
+    public boolean open(Player openFor, boolean force) {
+        if (isOpen() && !force) {
             return false;
         }
 
@@ -119,7 +123,11 @@ public class Portal {
     }
 
     public void close() {
-        if (fixed) {
+        close(false);
+    }
+
+    public void close(boolean force) {
+        if (fixed && !force) {
             return;
         }
         Portal end = getDestination();
@@ -443,7 +451,7 @@ public class Portal {
         }
 
         allPortals.remove(getName());
-        close();
+        close(true);
 
         if (id.getBlock().getType() == SIGN) {
             id.setText(0, getName());
