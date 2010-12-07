@@ -10,14 +10,28 @@ public abstract class SuperPlugin extends Plugin {
     protected PropertiesFile config;
     protected static final Logger log = Logger.getLogger("Minecraft");
     protected String name;
+    protected float version = 1.0f;
 
     /**
      * This must be called to setup the plug-in!
      * @param name - The name for the config/logfile.
+     * @deprecated see SuperPlugin(String name, float version)
      */
+    @Deprecated
     public SuperPlugin(String name) {
         config = new PropertiesFile(name+".txt");
         this.name = name;
+    }
+
+    /**
+     * This must be called to setup the plug-in!
+     * @param name - The name for the config/logfile.
+     * @param version - The version of this plugin
+     */
+    public SuperPlugin(String name, float version) {
+        config = new PropertiesFile(name+".txt");
+        this.name = name;
+        this.version = version;
     }
 
     /**
@@ -48,12 +62,12 @@ public abstract class SuperPlugin extends Plugin {
     public void enable() {
         reloadConfig();
         enableExtra();
-        log.info(name+" was enabled.");
+        log.info(String.format("%s %.2f was enabled", name, version));
     }
 
     public void disable() {
         disableExtra();
-        log.info(name+" was disabled.");
+        log.info(String.format("%s %.2f was disabled", name, version));
     }
 
     public void reloadConfig() {}

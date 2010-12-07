@@ -8,9 +8,14 @@ import java.util.logging.Level;
 public abstract class ThreadedPlugin extends SuperPlugin implements Runnable {
 	private Thread clock;
 	private long interval = 0;
-	
+
+        @Deprecated
 	public ThreadedPlugin(String name) {
 		super(name);
+	}
+
+	public ThreadedPlugin(String name, float version) {
+		super(name, version);
 	}
 
 	public synchronized void doWork() {}
@@ -21,8 +26,7 @@ public abstract class ThreadedPlugin extends SuperPlugin implements Runnable {
 			clock = new Thread(this);
 		reloadConfig();
 		clock.start();
-		enableExtra();
-		log.info(name+" was enabled.");
+		super.enable();
 	}
 
 	@SuppressWarnings("deprecation")
@@ -30,8 +34,7 @@ public abstract class ThreadedPlugin extends SuperPlugin implements Runnable {
 	public void disable() {
 		clock.stop();
 		clock = null;
-		disableExtra();
-		log.info(name+" was enabled.");
+		super.disable();
 	}
 	
 	public void setInterval(long interval) {

@@ -23,7 +23,7 @@ public class Stargate extends ThreadedPlugin {
     private HashMap<Integer, Location> vehicles = new HashMap<Integer, Location>();
 
     public Stargate() {
-        super("stargate");
+        super("stargate", 2.0f);
     }
 
     @Override
