@@ -1,6 +1,3 @@
-
-import java.util.logging.Level;
-
 /**
  * ThreadedPlugin.java - Threaded Plug-in template for hey0's minecraft mod.
  * @author Shaun (sturmeh)
@@ -9,7 +6,7 @@ public abstract class ThreadedPlugin extends SuperPlugin implements Runnable {
 	private Thread clock;
 	private long interval = 0;
 
-        @Deprecated
+    @Deprecated
 	public ThreadedPlugin(String name) {
 		super(name);
 	}
@@ -17,10 +14,14 @@ public abstract class ThreadedPlugin extends SuperPlugin implements Runnable {
 	public ThreadedPlugin(String name, float version) {
 		super(name, version);
 	}
+	
+	public ThreadedPlugin(String name, float version, String prop) {
+        super(name, version, prop);
+    }
 
 	public synchronized void doWork() {}
 	
-        @Override
+	@Override
 	public void enable() {
 		if (clock == null)
 			clock = new Thread(this);
@@ -30,7 +31,7 @@ public abstract class ThreadedPlugin extends SuperPlugin implements Runnable {
 	}
 
 	@SuppressWarnings("deprecation")
-        @Override
+	@Override
 	public void disable() {
 		clock.stop();
 		clock = null;

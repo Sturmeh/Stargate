@@ -33,6 +33,21 @@ public abstract class SuperPlugin extends Plugin {
         this.name = name;
         this.version = version;
     }
+    
+    /**
+     * This must be called to setup the plug-in!
+     * @param name - The name for the config/logfile.
+     * @param version - The version of this plugin
+     * @param prop - The path and name of the properties file w/o ext.
+     */
+    public SuperPlugin(String name, float version, String prop) {
+        if (prop != null && !prop.isEmpty())
+            config = new PropertiesFile(prop+".properties");
+        else
+            config = null;
+        this.name = name;
+        this.version = version;
+    }
 
     /**
      * This is called when the plug-in is enabled.
@@ -52,12 +67,15 @@ public abstract class SuperPlugin extends Plugin {
      */
     public boolean extraCommand(Player player, String[] split) { return false; }
 
+    /**
+     * This is called when a reload is issued.
+     */
+    public void reloadConfig() {}
+    
+    /**
+     * This is called when the plug-in is initialised.
+     */
     public void initializeExtra() {}
-
-    public void initialize() {
-        etc.getLoader().addListener(PluginLoader.Hook.COMMAND, reloader, this, PluginListener.Priority.LOW);
-        initializeExtra();
-    }
 
     public void enable() {
         reloadConfig();
@@ -69,15 +87,11 @@ public abstract class SuperPlugin extends Plugin {
         disableExtra();
         log.info(String.format("%s %.2f was disabled", name, version));
     }
-
-    public void reloadConfig() {}
-
-    /**
-     * Sends a message to all players!
-     * @param String - Message to send to all players.
-     */
-    public static void broadcast(String msg) {
-        etc.getServer().messageAll(msg);
+    
+    public void initialize() {
+        if (config != null)
+            etc.getLoader().addListener(PluginLoader.Hook.COMMAND, reloader, this, PluginListener.Priority.LOW);
+        initializeExtra();
     }
 
     /**
@@ -97,19 +111,9 @@ public abstract class SuperPlugin extends Plugin {
         log.log(level, message);
     }
 
-    /**
-     * Determines if a player used a command AND can use it.
-     * @param String - The command being checked.
-     * @param String - What the player is trying to use.
-     * @param Player - The player attempting to use the command.
-     */
-    public boolean isApt(String apt, String input, Player heir) {
-        return (heir.canUseCommand(apt) && input.equalsIgnoreCase(apt));
-    }
-
     private class ReloadListener extends PluginListener {
         public boolean onCommand(Player player, String[] split) {
-            if (isApt("/reload", split[0], player)) {
+            if (player.canUseCommand("/reload") && split[0].equalsIgnoreCase("/reload")) {
                 try {
                     config.load();
                 } catch (IOException e) {
