@@ -9,7 +9,7 @@ import java.util.concurrent.SynchronousQueue;
  */
 public class Stargate extends ThreadedPlugin {
     private final Listener listener = new Listener();
-    private static String gateSaveLocation = "stargates.txt";
+    private static String gateSaveLocation = "stargates/locations.dat";
     private static String teleportMessage = "You feel weightless as the portal carries you to new land...";
     private static String registerMessage = "You feel a slight tremble in the ground around the portal...";
     private static String destroyzMessage = "You feel a great shift in energy, as it leaves the portal...";
@@ -22,8 +22,8 @@ public class Stargate extends ThreadedPlugin {
     private static SynchronousQueue<Portal> slip = new SynchronousQueue<Portal>();
     private HashMap<Integer, Location> vehicles = new HashMap<Integer, Location>();
 
-    public Stargate() {
-        super("Stargate", 2.0f, "stargates/stargate");
+    public Stargate() { 
+        super("Stargate", 2.0f, "stargates/stargate");  
     }
 
     @Override
