@@ -56,6 +56,8 @@ class CostHandler {
 
     public CostHandler(String cost, String moneyDest) {
         method = PaymentMethod.iConomy;
+        destination = moneyDest;
+        
         try {
             money = Integer.parseInt(cost);
         } catch (NumberFormatException ex) {
