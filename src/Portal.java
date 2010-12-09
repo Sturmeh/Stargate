@@ -104,44 +104,45 @@ public class Portal {
     }
 
     public boolean open(Player openFor, boolean force) {
-        if (isOpen() && !force) {
-            return false;
-        }
+        if (isOpen() && !force) return false;
+
+        etc.getServer().loadChunk(topLeft.getBlock());
 
         for (Blox inside : getEntrances()) {
             inside.setType(gate.getPortalBlockOpen());
         }
 
-        player = openFor;
-        manipGrace(true, true);
-
         isOpen = true;
+        if (!isFixed()) {
+            player = openFor;
+            manipGrace(true, true);
 
-        etc.getServer().loadChunk(topLeft.getBlock());
+            Portal end = getDestination();
+            if (end != null && !end.isOpen() && end.getDestination() == null) {
+                end.open(openFor, false);
+                end.setDestination(this);
+                if (end.isVerified()) end.drawSign(true);
+            }
+        }
 
         return true;
     }
 
-    public void close() {
-        close(false);
-    }
-
     public void close(boolean force) {
-        if (fixed && !force) {
-            return;
-        }
+        if (fixed && !force) return;
+
         Portal end = getDestination();
 
         if (end != null && end.isOpen()) {
             end.deactivate(); // Clear it's destination first.
-            end.close();
+            end.close(false);
         }
 
         for (Blox inside : getEntrances()) {
             inside.setType(gate.getPortalBlockClosed());
         }
-        player = null;
 
+        player = null;
         isOpen = false;
 
         deactivate();
@@ -465,7 +466,7 @@ public class Portal {
             Portal origin = Portal.getByName(originName);
 
             if ((origin != null) && (origin.isFixed()) && (origin.getDestinationName().equalsIgnoreCase(getName())) && (origin.isVerified())) {
-                origin.close();
+                origin.close(false);
             }
         }
 
@@ -703,7 +704,7 @@ public class Portal {
                     float rotX = Float.parseFloat(split[5]);
                     Blox topLeft = new Blox(split[6]);
                     Gate gate = (split[7].contains(";")) ? Gate.getGateByName("nethergate.gate") : Gate.getGateByName(split[7]);
-                    
+
                     String fixed = (split.length > 8) ? split[8] : "";
                     String network = (split.length > 9) ? split[9] : Stargate.getDefaultNetwork();
                     String owner = (split.length > 10) ? split[10] : "";

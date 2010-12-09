@@ -74,7 +74,7 @@ public class Stargate extends ThreadedPlugin {
         Portal open = slip.poll();
         if (open != null) {
             if (open.isOpen()) {
-                open.close();
+                open.close(false);
             } else if (open.isActive()) {
                 open.deactivate();
             }
@@ -107,21 +107,13 @@ public class Stargate extends ThreadedPlugin {
                 }
             } else if (gate.getGate().deductCost(Gate.CostFor.Activating, player)) {
                 gate.open(player);
-                destination.open(player);
-                destination.setDestination(gate);
-                if (destination.isVerified()) {
-                    destination.drawSign(true);
-                }
             } else {
                 if (!cantAffordToUse.isEmpty()) {
                     player.sendMessage(Colors.Red + cantAffordToUse);
                 }
             }
         } else {
-            gate.close();
-            if (destination != null) {
-                destination.close();
-            }
+            gate.close(false);
         }
     }
 
@@ -142,13 +134,7 @@ public class Stargate extends ThreadedPlugin {
                             }
 
                             destination.teleport(player, portal);
-
-                            if (!portal.isFixed()) {
-                                portal.close();
-                            }
-                            if ((!destination.isFixed()) && (destination.getDestinationName().equalsIgnoreCase(portal.getName()))) {
-                                destination.close();
-                            }
+                            portal.close(false);
                         }
                     } else {
                         player.sendMessage(Colors.Red + cantAffordToUse);
@@ -242,7 +228,7 @@ public class Stargate extends ThreadedPlugin {
 
             if ((!portal.wasVerified()) && (portal.isVerified())) {
                 if (!portal.checkIntegrity()) {
-                    portal.close();
+                    portal.close(true);
                     portal.unregister();
                     update = false;
                     log("Destroying stargate at " + portal.toString());
@@ -302,12 +288,7 @@ public class Stargate extends ThreadedPlugin {
 
                                 vehicles.put(vehicle.getId(), destination.teleport(vehicle, portal));
 
-                                if (!portal.isFixed()) {
-                                    portal.close();
-                                }
-                                if ((!destination.isFixed()) && (destination.getDestinationName().equalsIgnoreCase(portal.getName()))) {
-                                    destination.close();
-                                }
+                                portal.close(false);
                             }
                         } else {
                             player.sendMessage(Colors.Red + cantAffordToUse);
