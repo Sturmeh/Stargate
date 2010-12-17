@@ -438,8 +438,9 @@ public class Gate {
 
     public static Gate[] getGatesByControlBlock(int type) {
         Gate[] result = new Gate[0];
+        ArrayList<Gate> lookup = controlBlocks.get(type);
         
-        result = controlBlocks.get(type).toArray(result);
+        if (lookup != null) result = lookup.toArray(result);
 
         return result;
     }
