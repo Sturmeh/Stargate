@@ -70,11 +70,7 @@ public class Gate {
         }
 
         for (int x = 0; x < exitDepths.length; x++) {
-            if (exitDepths[x] >= bottom - 3) {
-                lastExit = new RelativeBlockVector(x, exitDepths[x], 0);
-            }
-
-            relativeExits[x] = lastExit;
+            relativeExits[x] = new RelativeBlockVector(x, exitDepths[x], 0);
         }
 
         for (int x = relativeExits.length - 1; x >= 0; x--) {
