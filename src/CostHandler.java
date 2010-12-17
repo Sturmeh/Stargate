@@ -1,4 +1,3 @@
-
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
@@ -111,7 +110,7 @@ class CostHandler {
                 if ((recipient.length > 0) && (recipient[0].equalsIgnoreCase("player"))) {
                     if ((recipient.length > 1) && (icon.hasBalance(recipient[1]))) {
                         balance = icon.getBalance(recipient[1]);
-                        icon.setBalance(recipient[1], balance);
+                        icon.setBalance(recipient[1], balance + money);
 
                         if (!receive.isEmpty()) player.sendMessage(String.format(receive, money + coin));
                     } else {
