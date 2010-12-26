@@ -199,14 +199,12 @@ public class Stargate extends ThreadedPlugin {
         public boolean onSignChange(Player player, Sign signBlock) {
             SignPost sign = new SignPost(signBlock);
 
-            if (!player.canUseCommand("/stargatecreate")) {
-                return true;
-            }
-
-            Portal portal = Portal.createPortal(sign, player);
-
-            if (portal != null && !registerMessage.isEmpty()) {
-                player.sendMessage(Colors.Green + registerMessage);
+            if (player.canUseCommand("/stargatecreate")) {
+                Portal portal = Portal.createPortal(sign, player);
+    
+                if (portal != null && !registerMessage.isEmpty()) {
+                    player.sendMessage(Colors.Green + registerMessage);
+                }
             }
 
             return false;
