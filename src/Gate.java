@@ -50,7 +50,7 @@ public class Gate {
         ArrayList<RelativeBlockVector> controlList = new ArrayList<RelativeBlockVector>();
         RelativeBlockVector[] relativeExits = new RelativeBlockVector[layout[0].length];
         int[] exitDepths = new int[layout[0].length];
-        int bottom = 0;
+        //int bottom = 0;
         RelativeBlockVector lastExit = null;
 
         for (int y = 0; y < layout.length; y++) {
@@ -60,7 +60,7 @@ public class Gate {
                 if (id == ENTRANCE) {
                     entranceList.add(new RelativeBlockVector(x, y, 0));
                     exitDepths[x] = y;
-                    bottom = y;
+                    //bottom = y;
                 } else if (id == CONTROL) {
                     controlList.add(new RelativeBlockVector(x, y, 0));
                 } else if (id != ANYTHING) {

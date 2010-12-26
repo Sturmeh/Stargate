@@ -32,8 +32,8 @@ public class Stargate extends ThreadedPlugin {
         etc.getLoader().addListener(PluginLoader.Hook.BLOCK_RIGHTCLICKED, listener, this, PluginListener.Priority.MEDIUM);
         etc.getLoader().addListener(PluginLoader.Hook.BLOCK_DESTROYED, listener, this, PluginListener.Priority.MEDIUM);
         etc.getLoader().addListener(PluginLoader.Hook.BLOCK_PLACE, listener, this, PluginListener.Priority.MEDIUM);
-        etc.getLoader().addListener(PluginLoader.Hook.COMPLEX_BLOCK_CHANGE, listener, this, PluginListener.Priority.MEDIUM);
-        etc.getLoader().addListener(PluginLoader.Hook.COMPLEX_BLOCK_SEND, listener, this, PluginListener.Priority.MEDIUM);
+        etc.getLoader().addListener(PluginLoader.Hook.SIGN_CHANGE, listener, this, PluginListener.Priority.MEDIUM);
+        etc.getLoader().addListener(PluginLoader.Hook.SIGN_SHOW, listener, this, PluginListener.Priority.MEDIUM);
         etc.getLoader().addListener(PluginLoader.Hook.BLOCK_PHYSICS, listener, this, PluginListener.Priority.MEDIUM);
         etc.getLoader().addListener(PluginLoader.Hook.VEHICLE_POSITIONCHANGE, listener, this, PluginListener.Priority.MEDIUM);
         etc.getLoader().addListener(PluginLoader.Hook.FLOW, listener, this, PluginListener.Priority.MEDIUM);
@@ -196,11 +196,8 @@ public class Stargate extends ThreadedPlugin {
         }
 
         @Override
-        public boolean onComplexBlockChange(Player player, ComplexBlock signBlock) {
-            if (!(signBlock instanceof Sign)) {
-                return false;
-            }
-            SignPost sign = new SignPost((Sign) signBlock);
+        public boolean onSignChange(Player player, Sign signBlock) {
+            SignPost sign = new SignPost(signBlock);
 
             if (!player.canUseCommand("/stargatecreate")) {
                 return true;
@@ -216,14 +213,11 @@ public class Stargate extends ThreadedPlugin {
         }
 
         @Override
-        public boolean onSendComplexBlock(Player player, ComplexBlock signBlock) {
-            if (!(signBlock instanceof Sign)) {
-                return false;
-            }
+        public void onSignShow(Player player, Sign signBlock) {
             Portal portal = Portal.getByBlock(etc.getServer().getBlockAt(signBlock.getX(), signBlock.getY(), signBlock.getZ()));
-            if (portal == null) {
-                return false;
-            }
+            
+            if (portal == null) return;
+            
             boolean update = true;
 
             if ((!portal.wasVerified()) && (portal.isVerified())) {
@@ -238,8 +232,6 @@ public class Stargate extends ThreadedPlugin {
             if (update) {
                 portal.drawSign(false);
             }
-
-            return false;
         }
 
         @Override

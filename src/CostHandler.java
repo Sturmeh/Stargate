@@ -81,7 +81,7 @@ class CostHandler {
         for (Item item : items) {
             if (inventory.hasItem(item.getItemId(), item.getAmount(), 65)) {
                 inventory.removeItem(item);
-                inventory.updateInventory();
+                inventory.update();
                 return true;
             }
         }
