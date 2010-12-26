@@ -149,16 +149,20 @@ public class Stargate extends ThreadedPlugin {
 
         @Override
         public void onBlockRightClicked(Player player, Block block, Item item) {
+			Portal portal = Portal.getByBlock(block);
             if ((block.blockType == Block.Type.SignPost) || (block.blockType == Block.Type.WallSign)) {
-                Portal portal = Portal.getByBlock(block);
-
                 if (portal != null) {
                     if ((!portal.isOpen()) && (!portal.isFixed())) {
                         portal.cycleDestination();
                     }
                 }
-            }
-        }
+            } else if (block.getType() == Portal.BUTTON) {
+                if (player.canUseCommand("/stargateuse")) {
+					if (portal == null) portal = Portal.getByEntrance(block);
+                    if (portal != null) onButtonPressed(player, portal);
+                }
+			}
+		}
 
         @Override
         public boolean onBlockDestroy(Player player, Block block) {
