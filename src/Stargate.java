@@ -1,4 +1,5 @@
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.concurrent.SynchronousQueue;
 
@@ -23,7 +24,11 @@ public class Stargate extends ThreadedPlugin {
     private HashMap<Integer, Location> vehicles = new HashMap<Integer, Location>();
 
     public Stargate() { 
-        super("Stargate", 2.0f, "stargates/stargate");  
+        super("Stargate", 2.0f, "stargates/stargate");
+        
+        File oldFile = new File("stargates.txt");
+        if (oldFile.exists())
+            oldFile.renameTo(new File(gateSaveLocation));
     }
 
     @Override
