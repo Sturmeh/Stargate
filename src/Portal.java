@@ -209,7 +209,15 @@ public class Portal {
             Block exit = getReverseExits().get(position);
 
             if (exit != null) {
-                return new Blox(exit).modRelativeLoc(0D, 0D, 1D, traveller.rotX, traveller.rotY, modX, 1, modZ);
+                Location loc = new Blox(exit).modRelativeLoc(0D, 0D, 1D, traveller.rotX, traveller.rotY, modX, 1, modZ);
+                Block block = etc.getServer().getBlockAt((int)Math.floor(loc.x), (int)Math.floor(loc.y), (int)Math.floor(loc.z));
+
+                if (block.blockType == Block.Type.Step) {
+                    loc.y += 0.5;
+                }
+
+                loc.rotY = traveller.rotY;
+                return loc;
             }
         }
 
