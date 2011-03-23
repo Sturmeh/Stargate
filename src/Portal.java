@@ -607,6 +607,47 @@ public class Portal {
         } else {
             Blox button = topleft.modRelative(buttonVector.getRight(), buttonVector.getDepth(), buttonVector.getDistance() + 1, modX, 1, modZ);
             button.setType(BUTTON);
+            
+            // start Hidendra
+            /* dirty hacks */
+            
+            Block.Face[] faces = new Block.Face[] {
+            	Block.Face.Front, Block.Face.Left, Block.Face.Right, Block.Face.Back
+            };
+            
+            // we want THE OBSIDIAN
+            for(Block.Face face : faces) {
+            	Block blockFace = button.getBlock().getFace(face);
+            	
+            	if(blockFace.getType() != OBSIDIAN) {
+            		continue;
+            	}
+            	
+            	switch(face) {
+            	case Front: // SOUTH - 0x01
+            		button.setData(0x02); // inverse the button dir (south->N)
+            		
+            		break;
+            		
+            	case Left: // EAST - 0x03
+            		button.setData(0x04);
+            		
+            		break;
+            		
+            	case Right: // WEST - 0x04
+            		button.setData(0x03);
+            		
+            		break;
+            		
+            	case Back: // NORTH - 0x02
+            		button.setData(0x01);
+            		
+            		break;
+            	
+            	}
+            }
+            
+            // end
 
             portal = new Portal(topleft, modX, modZ, rotX, id, button, "", name, true, network, gate, player.getName());
         }
